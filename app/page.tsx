@@ -4,7 +4,7 @@ import { NeighborhoodMap } from "./components$/NeighborhoodMap";
 
 export default function Home() {
   return (
-    <div>
+    <div className="">
       <NeighborhoodMap />
     </div>
   );
