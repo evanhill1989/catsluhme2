@@ -20,8 +20,8 @@ export function ListingCard({ imagePath, catId, pathName }: iAppProps) {
           <Image
             src={`${imagePath}`}
             alt="Image of a Cat"
-            fill
-            className="object-cover rounded-lg h-full"
+            width={200}
+            height={200}
           />
         </Link>
       </div>

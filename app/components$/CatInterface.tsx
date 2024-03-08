@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 interface iAppProps {
   imagePath: string;
@@ -7,6 +10,8 @@ interface iAppProps {
   userId: string;
   relationshipId: string;
   pathName: string;
+  userGivenName: string;
+  catName: string;
 }
 
 export function CatInterface({
@@ -15,18 +20,33 @@ export function CatInterface({
   userId,
   relationshipId,
   pathName,
+  userGivenName,
+  catName,
 }: iAppProps) {
   return (
     <div>
       <Image
         src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${imagePath}`}
         alt="Image of the cat"
-        className="object-cover rounded-lg h-full"
-        fill
+        width={200}
+        height={200}
       />
-      <h2>CatId: {catId}</h2>
-      <h2>UserId: {userId}</h2>
-      <h2>relationshipId: {relationshipId}</h2>
+
+      {/* // eslint-disable-next-line @next/next/no-img-element */}
+
+      <h1>Hello {userGivenName}</h1>
+      <p>User Id: {userId}</p>
+      <h3>What would you like to do with {catName}</h3>
+      <p>Relationship id: {relationshipId}</p>
+      <div>
+        <p>today's log</p>
+        <p>available treats</p>
+      </div>
+
+      <div>
+        <Button>Play</Button>
+        <Button>Treat</Button>
+      </div>
     </div>
   );
 }

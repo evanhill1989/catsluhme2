@@ -59,24 +59,32 @@ export default function CatRoute({ params }: { params: { id: string } }) {
 }
 
 // show interface displays the interactive game interface
+// does ShowInterface need to be separate component?
 async function ShowInterface({ params }: { params: { id: string } }) {
   const { getUser } = getKindeServerSession();
   const user = (await getUser()) as any;
   const cat = (await getCat(params.id)) as any;
+  if (!cat) {
+    return (
+      <div className="w-full grid place-self-center">
+        <h1>Cat not found</h1>
+      </div>
+    );
+  }
   const relationship = await getRelationship({
     userId: user.id as string,
     catId: cat.id as string,
   });
-  console.log(cat);
+
   if (relationship === null) {
     return (
       <div className="w-full grid place-self-center">
         <Dialog>
           <DialogTrigger className="flex flex-col place-self-center justify-center align-center">
-            <img
-              src={cat?.pic}
+            {/* This img below flashes and disappears */}
+            <Image
+              src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${cat?.pic}`}
               alt="Image of the cat"
-              fill
               height={200}
               width={200}
             />
@@ -88,7 +96,6 @@ async function ShowInterface({ params }: { params: { id: string } }) {
                 A little about {cat?.name}
               </DialogTitle>
               <DialogDescription>
-                {/* UltimatelyThis will be cat based */}
                 <div className="flex flex-col gap-2">
                   <p>
                     {cat?.name}'s favorite activity is {cat?.favoriteActivity}
@@ -111,33 +118,27 @@ async function ShowInterface({ params }: { params: { id: string } }) {
       </div>
     );
   } else {
-    {
-      /* Imported Interface component that will take all the data props */
-      <CatInterface
-        relationshipId={relationship?.id}
-        catId={cat?.id}
-        userId={user?.id}
-        imagePath={cat?.pic}
-        pathName="/"
-      />;
-    }
+    return (
+      <>
+        {/* The img below flashes and disappears */}
+
+        <Image
+          src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${cat?.pic}`}
+          alt="Image of the cat"
+          height={200}
+          width={200}
+        />
+        {/* /* Imported Interface component that will take all the data props */}
+        <CatInterface
+          relationshipId={relationship?.id}
+          catId={cat?.id}
+          userId={user?.id}
+          imagePath={cat?.pic}
+          pathName="/"
+          userGivenName={user?.given_name}
+          catName={cat?.name}
+        />
+      </>
+    );
   }
-
-  return (
-    <div>
-      <h1>Hello {user?.given_name}</h1>
-      <p>User Id: {user?.id}</p>
-      <h3>What would you like to do with {cat?.name}</h3>
-      <p>Relationship id: {relationship?.id}</p>
-      <div>
-        <p>today's log</p>
-        <p>available treats</p>
-      </div>
-
-      <div>
-        <Button>Play</Button>
-        <Button>Treat</Button>
-      </div>
-    </div>
-  );
 }

@@ -69,6 +69,11 @@ async function ShowCats() {
   // const { getUser } = getKindeServerSession();
   // const user = await getUser();
   const data = await getData();
+
+  if (!data) {
+    return null;
+  }
+
   return (
     <>
       {data.length === 0 ? (

@@ -14,26 +14,26 @@ export function CatMap() {
   return (
     <div className="w-full relative">
       <Link href="/cat">
-        <Image
+        {/* <Image
           src={Abigail}
           alt="Abigail"
           className="absolute top-10 left-4 lg:w-20 w-8 z-10"
-        />
+        /> */}
       </Link>
       <Link href="/cat">
-        <Image
+        {/* <Image
           src={Luna}
           alt="Luna"
           className="absolute top-40 left-25 lg:w-20 w-8 z-10"
-        />
+        /> */}
       </Link>
       <Link href="/cat">
         {" "}
-        <Image
+        {/* <Image
           src={Oscar}
           alt="Oscar"
           className="absolute top-10 right-20 lg:w-20 w-8 z-10"
-        />
+        /> */}
       </Link>
     </div>
   );

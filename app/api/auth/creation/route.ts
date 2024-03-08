@@ -7,7 +7,7 @@ export async function GET() {
 
   const user = await getUser();
 
-  console.log(user);
+
 
   if (!user || user === null || !user.id) {
     throw new Error("Something went wrong, sorry");
