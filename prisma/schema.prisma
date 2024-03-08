@@ -21,5 +21,40 @@ model User{
   firstName String
   lastName String
   profileImage String?
+   Relationship Relationship[]
 
+}
+
+model Cat{
+  id String @id @unique
+
+  
+  pic String? @default("http://localhost:3000/_next/static/media/Abigail_Orange2.d936ad64.svg")
+
+  name String
+  color String
+  favoriteActivity String?
+  favoriteTreat String?
+  originStory String?
+
+
+
+  Relationship Relationship[]
+
+
+}
+
+model Relationship {
+  id String @id @default(uuid())
+
+  duration String?
+  trust String?
+  love String?
+  
+
+
+  User User? @relation(fields: [userId], references: [id])
+  userId String?
+  Cat Cat? @relation(fields: [catId], references: [id])
+  catId String?
 }
