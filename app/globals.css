@@ -49,6 +49,12 @@
   }
 }
 
+body,
+html {
+  height: 100%;
+  margin: 0;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -57,3 +63,54 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes lightGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 8px 4px rgba(255, 255, 255, 1);
+    /* 0 0 20px 6px rgba(255, 255, 255, 0.4); */
+  }
+  25% {
+    box-shadow: 3px 0 2px 2px rgba(255, 255, 255, 0.6);
+    /* 0 0 20px 6px rgba(255, 255, 255, 0.4); */
+  }
+  50% {
+    box-shadow: 0 3px 4px 2px rgba(255, 255, 255, 0.6);
+    /* 0 20px 20px 6px rgba(255, 255, 255, 0.4); */
+  }
+  75% {
+    box-shadow: -3px 0 2px 2px rgba(255, 255, 255, 0.6);
+    /* 0 0 20px 6px rgba(255, 255, 255, 0.4); */
+  }
+}
+
+.grid-rows-layout {
+  display: grid;
+  grid-template-rows: auto 1fr; /* Navbar size is auto, content takes remaining */
+}
+
+.lightGlowAnimation {
+  animation: lightGlow 3s infinite ease-in-out;
+  border-radius: 50%; /* Ensure the element is circular for the border effect */
+}
+
+.gameInterface {
+  /* @apply grid;
+  width: 100%;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(5, 1fr); */
+
+  /* grid-template-areas:
+    "display display display display display display display display display display display display"
+    "display display display display display display display display display display display display"
+    "display display display display display display display display display display display display"
+    "display display display display display display display display display display display display"
+    "e e actions actions actions actions actions actions actions actions e e"; */
+}
+/* .gameDisplay {
+  grid-area: display;
+}
+
+.gameActions {
+  grid-area: actions;
+} */

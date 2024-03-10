@@ -55,7 +55,11 @@ async function getRelationship({
 // use create relationship
 
 export default function CatRoute({ params }: { params: { id: string } }) {
-  return <ShowInterface params={params} />;
+  return (
+    <>
+      <ShowInterface params={params} />
+    </>
+  );
 }
 
 // show interface displays the interactive game interface
@@ -120,24 +124,21 @@ async function ShowInterface({ params }: { params: { id: string } }) {
   } else {
     return (
       <>
-        {/* The img below flashes and disappears */}
-
-        <Image
-          src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${cat?.pic}`}
-          alt="Image of the cat"
-          height={200}
-          width={200}
-        />
         {/* /* Imported Interface component that will take all the data props */}
-        <CatInterface
-          relationshipId={relationship?.id}
-          catId={cat?.id}
-          userId={user?.id}
-          imagePath={cat?.pic}
-          pathName="/"
-          userGivenName={user?.given_name}
-          catName={cat?.name}
-        />
+        <div className="h-full">
+          <CatInterface
+            relationshipId={relationship?.id}
+            trust={relationship.trust ?? 0}
+            love={relationship.love ?? 0}
+            duration={relationship.duration ?? 0}
+            catId={cat?.id}
+            userId={user?.id}
+            imagePath={cat?.pic}
+            pathName="/"
+            userGivenName={user?.given_name}
+            catName={cat?.name}
+          />
+        </div>
       </>
     );
   }

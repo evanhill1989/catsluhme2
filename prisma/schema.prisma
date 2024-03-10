@@ -36,6 +36,9 @@ model Cat{
   favoriteActivity String?
   favoriteTreat String?
   originStory String?
+  landmark String?
+  landmarkX Int?
+  landmarkY Int?
 
 
 
@@ -47,9 +50,9 @@ model Cat{
 model Relationship {
   id String @id @default(uuid())
 
-  duration String?
-  trust String?
-  love String?
+  duration Int?
+  trust Int?
+  love Int?
   
 
 
