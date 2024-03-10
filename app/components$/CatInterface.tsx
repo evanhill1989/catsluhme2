@@ -33,6 +33,7 @@ export function CatInterface({
   duration,
 }: iAppProps) {
   // Inline style for the pizza slice effect
+
   const loveStyle = {
     width: "50px",
     height: "50px",
