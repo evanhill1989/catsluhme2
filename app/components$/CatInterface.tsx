@@ -104,21 +104,3 @@ export function CatInterface({
     </div>
   );
 }
-
-{
-  /* // eslint-disable-next-line @next/next/no-img-element */
-}
-
-//  <h1>Hello {userGivenName}</h1>
-//  <p>User Id: {userId}</p>
-//  <h3>What would you like to do with {catName}</h3>
-//  <p>Relationship id: {relationshipId}</p>
-//  <div>
-//    <p>today's log</p>
-//    <p>available treats</p>
-//  </div>
-
-//  <div>
-//    <Button>Play</Button>
-//    <Button>Treat</Button>
-//  </div>

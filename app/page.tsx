@@ -12,29 +12,17 @@ import { SkeletonCard } from "./components$/SkeletonCard";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 
-// the big scary thing is still how do i get the cat id on the route?
+interface CatData {
+  id: string;
+  pic?: string;
+  x?: number;
+  y?: number;
+}
 
-const landmarks = [
-  { id: "landmark1", name: "Shop", x: 410, y: 200 },
-  { id: "landmark2", name: "Abigail_House", x: 300, y: 400 },
-  { id: "landmark3", name: "Oscar_House", x: 500, y: 500 },
-  // Add more landmarks as needed
-];
-
-async function getData() {
+async function getCatData() {
   let data = await prisma.cat.findMany({
     where: {},
-    // include: {
-    //   landmark: true, // Assuming a relation exists between cats and landmarks
-    // },
   });
-
-  // Map data to include landmark coordinates
-  // data = data.map((cat) => ({
-  //   ...cat,
-  //   x: cat.landmark.x,
-  //   y: cat.landmark.y,
-  // }));
 
   return data;
 }
@@ -54,10 +42,13 @@ export default function Home() {
 }
 
 async function ShowCats() {
-  // const { getUser } = getKindeServerSession();
-  // const user = await getUser();
-  const data = await getData();
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  const data = await getCatData();
 
+  if (!user) {
+    return <></>;
+  }
   if (!data) {
     return null;
   }
@@ -70,7 +61,7 @@ async function ShowCats() {
         </div>
       ) : (
         <div className="place-items-center grid lg:grid-cols-4 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-8">
-          {data.map((item) => {
+          {data.map((item: CatData) => {
             return (
               <CatSprite
                 userId={""}
@@ -79,8 +70,8 @@ async function ShowCats() {
                 catId={item.id}
                 imagePath={item.pic as string}
                 pathName="/"
-                x={item.landmarkX ?? 0} // Pass x coordinate
-                y={item.landmarkY ?? 0} // Pass y coordinate
+                x={item.landmarkX} // Pass x coordinate
+                y={item.landmarkY} // Pass y coordinate
               />
             );
           })}
