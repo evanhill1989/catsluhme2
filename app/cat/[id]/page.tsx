@@ -128,7 +128,7 @@ async function ShowInterface({ params }: { params: { id: string } }) {
         <div className="h-full">
           <CatInterface
             relationshipId={relationship?.id}
-            trust={relationship.trust ?? 0}
+            relationshipTrust={relationship.trust ?? 0}
             love={relationship.love ?? 0}
             duration={relationship.duration ?? 0}
             catId={cat?.id}

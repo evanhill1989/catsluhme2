@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useCatMood } from "../hooks/useCatMood";
 
 interface iAppProps {
   imagePath: string;
@@ -13,7 +14,7 @@ interface iAppProps {
   pathName: string;
   userGivenName: string;
   catName: string;
-  trust: number;
+  relationshipTrust: number;
   love: number;
   duration: number;
 }
@@ -28,11 +29,19 @@ export function CatInterface({
   pathName,
   userGivenName,
   catName,
-  trust,
+  relationshipTrust,
   love,
   duration,
 }: iAppProps) {
   // Inline style for the pizza slice effect
+
+  const initialFactors = {
+    loving: love,
+    playful: 4,
+    trust: relationshipTrust,
+    affection: 5,
+  };
+  const [mood, { onInteract }] = useCatMood(initialFactors);
 
   const loveStyle = {
     width: "50px",
@@ -84,7 +93,9 @@ export function CatInterface({
                 <Progress className="play" value={33} />
               </div>
             </div>
-            <div className="actionLog basis-2/3 flex bg-slate-400"></div>
+            <div className="actionLog basis-2/3 flex bg-slate-400">
+              <p>Current mood: {mood}</p>
+            </div>
           </div>
           <div className="catSprite col-start-5 col-end-9 row-start-1 row-end-5 bg-slate-300 mt-4 mb-4"></div>
           <div className="relationshipStates col-start-12 col-end-13 row-start-1 row-end-5 border-2 border-black flex flex-col justify-around items-center ">

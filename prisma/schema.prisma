@@ -35,9 +35,9 @@ model Relationship {
   id       String  @id @default(uuid())
   userId   String?
   catId    String?
-  duration String?
-  love     String?
-  trust    String?
+  duration Int?
+  love     Int?
+  trust    Int?
   Cat      Cat?    @relation(fields: [catId], references: [id])
   User     User?   @relation(fields: [userId], references: [id])
 }

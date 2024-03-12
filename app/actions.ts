@@ -14,7 +14,9 @@ export async function CreateRelationship(formData: FormData) {
   const data = await prisma.relationship.create({
     data: {
       userId: userId,
-
+      duration: 0,
+      love: 0,
+      trust: 0,
       catId: catId,
     },
   });

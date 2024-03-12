@@ -12,12 +12,12 @@ import { SkeletonCard } from "./components$/SkeletonCard";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 
-interface CatData {
+type CatData = {
   id: string;
-  pic?: string;
+  pic: string | null;
   x?: number;
   y?: number;
-}
+};
 
 async function getCatData() {
   let data = await prisma.cat.findMany({
@@ -46,9 +46,6 @@ async function ShowCats() {
   const user = await getUser();
   const data = await getCatData();
 
-  if (!user) {
-    return <></>;
-  }
   if (!data) {
     return null;
   }
@@ -64,7 +61,7 @@ async function ShowCats() {
           {data.map((item: CatData) => {
             return (
               <CatSprite
-                userId={""}
+                userId={(user?.id || 0) as number}
                 relationshipId={""}
                 key={item.id}
                 catId={item.id}
