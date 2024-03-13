@@ -56,9 +56,9 @@ export function CatInterface({
     width: "50px",
     height: "50px",
     borderRadius: "50%",
-    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${trust}deg, black ${trust}deg, black ${
-      360 - trust
-    }deg, #0000 ${360 - trust}deg)`,
+    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipTrust}deg, black ${relationshipTrust}deg, black ${
+      360 - relationshipTrust
+    }deg, #0000 ${360 - relationshipTrust}deg)`,
   };
 
   const durationStyle = {

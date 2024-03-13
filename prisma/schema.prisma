@@ -28,6 +28,8 @@ model Cat {
   landmark         String?
   landmarkX        String?
   landmarkY        String?
+  loving      Int?
+  playful     Int?
   Relationship     Relationship[]
 }
 
@@ -38,6 +40,7 @@ model Relationship {
   duration Int?
   love     Int?
   trust    Int?
+  affection Int?
   Cat      Cat?    @relation(fields: [catId], references: [id])
   User     User?   @relation(fields: [userId], references: [id])
 }
