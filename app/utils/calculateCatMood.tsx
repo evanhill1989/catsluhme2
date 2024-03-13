@@ -9,11 +9,11 @@ export function calculateCatMood(factors: CatFactors): number {
   const { loving, playful, trust, affection } = factors;
 
   // Calculate the base mood as the average of the factors
-  let baseMood = (loving + playful + trust + affection) / 4;
+  let baseMood = Math.round((loving + playful + trust + affection) / 4);
 
   // Introduce randomness
   // Determine the chance of a random mood swing. For example, 10% chance.
-  const chanceOfMoodSwing = 0.1; // 10%
+  const chanceOfMoodSwing = 0.5; // 10%
   const isMoodSwinging = Math.random() < chanceOfMoodSwing;
 
   if (isMoodSwinging) {
@@ -23,7 +23,7 @@ export function calculateCatMood(factors: CatFactors): number {
     baseMood += randomSwing;
 
     // Cap the mood between -10 and 10
-    baseMood = Math.max(-10, Math.min(10, baseMood));
+    baseMood = Math.round(Math.max(-10, Math.min(10, baseMood)));
   }
 
   return baseMood;

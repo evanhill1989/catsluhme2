@@ -127,13 +127,16 @@ async function ShowInterface({ params }: { params: { id: string } }) {
         {/* /* Imported Interface component that will take all the data props */}
         <div className="h-full">
           <CatInterface
+            relationshipAffection={relationship.affection ?? 0}
+            relationshipLove={relationship.love ?? 0}
             relationshipId={relationship?.id}
             relationshipTrust={relationship.trust ?? 0}
-            love={relationship.love ?? 0}
+            catLoving={cat.loving ?? 0}
+            playful={cat.playful ?? 0}
             duration={relationship.duration ?? 0}
             catId={cat?.id}
             userId={user?.id}
-            imagePath={cat?.pic}
+            imagePath={cat.pic}
             pathName="/"
             userGivenName={user?.given_name}
             catName={cat?.name}
