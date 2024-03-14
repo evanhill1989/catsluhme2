@@ -28,7 +28,7 @@ export function CatSprite({ imagePath, catId, x, y, userId }: iAppProps) {
           className="cursor-pointer"
         >
           <Image
-            src={imagePath}
+            src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${imagePath}`}
             alt="Image of a Cat"
             width={50}
             height={50}

@@ -77,7 +77,7 @@ export function CatInterface({
   };
 
   return (
-    <div className="mx-2 h-full">
+    <div className=" h-full bg-[url(https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/BackgroundTreesGrass.svg?t=2024-03-13T21%3A40%3A05.276Z)]">
       <div className="gameInterface min-h-full w-full grid grid-cols-12 grid-rows-5 ">
         <div className="gameDisplay grid grid-rows-subgrid min-h-full grid-cols-subgrid col-start-1 col-end-13 row-start-1 row-end-5">
           <div className="currentState col-start-1 col-end-3 row-start-1 row-end-4 flex flex-col">
