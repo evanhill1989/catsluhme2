@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { calculateCatMood } from "../utils/calculateCatMood";
 
-type InteractionType = "pet" | "feed" | "play" | "hold";
+type InteractionType = "pet" | "feed" | "play" | "hold" | "ignore" | "pss pss";
 
 // Extend CatFactors type if necessary to include methods for updating factors based on interactions
 interface CatMoodActions {
