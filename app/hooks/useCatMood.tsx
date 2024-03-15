@@ -55,7 +55,9 @@ export function useCatMood(moodFactors: CatFactors): [number, CatMoodActions] {
         // No default adjustment needed
         break;
     }
-
+    console.log(
+      `Interaction: ${interaction}. Adjusting factors: [loving: ${lovingAdjustment}, playful: ${playfulAdjustment}, trust: ${trustAdjustment}, affection: ${affectionAdjustment}]`
+    );
     // Apply the adjustment. Ensure you're not exceeding the -10 to 10 bounds for each factor.
     setFactors((prevFactors) => ({
       loving: Math.max(

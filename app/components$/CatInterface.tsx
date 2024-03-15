@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -66,6 +66,37 @@ export function CatInterface({
   };
   const [mood, { onInteract }] = useCatMood(moodFactors);
 
+  // Here is the useEffect hook that listens for changes in actionHistory
+  const [actionHistory, setActionHistory] = useState<string[]>([]);
+
+  const updateRelationshipInDB = useCallback(async () => {
+    // Assuming updateRelationship() takes an object with userId, catId, and a score or other metrics to update the relationship
+    await UpdateRelationship({
+      relationshipId: relationshipId,
+      love: relationshipLove,
+      trust: relationshipTrust,
+      affection: relationshipAffection,
+      score: interactionImpactScore,
+    });
+    console.log(
+      "Relationship updated successfully within CatInterface.tsx updateRelationshipInDB()"
+    );
+    // Reset the interactionImpactScore if necessary, or adjust logic as needed
+    interactionImpactScore = 0;
+  }, [
+    relationshipId,
+    relationshipLove,
+    relationshipTrust,
+    relationshipAffection /* any other dependencies */,
+  ]);
+
+  useEffect(() => {
+    // Check if the actionHistory length is a multiple of 10 and greater than 0
+    if (actionHistory.length > 0 && actionHistory.length % 10 === 0) {
+      updateRelationshipInDB();
+    }
+  }, [actionHistory]); // Depend on actionHistory to trigger this effect.
+
   const handleInteraction = (interaction: InteractionType) => {
     onInteract(interaction);
     evaluateInteractionImpact(interaction); // Adjust the interaction impact score.
@@ -88,22 +119,6 @@ export function CatInterface({
       return updatedHistory;
     });
   };
-
-  const updateRelationshipInDB = async () => {
-    // Assuming updateRelationship() takes an object with userId, catId, and a score or other metrics to update the relationship
-    await UpdateRelationship({
-      relationshipId: relationshipId,
-      love: relationshipLove,
-      trust: relationshipTrust,
-      affection: relationshipAffection,
-      score: interactionImpactScore,
-    });
-
-    // Reset the interactionImpactScore if necessary, or adjust logic as needed
-    interactionImpactScore = 0;
-  };
-
-  const [actionHistory, setActionHistory] = useState<string[]>([]);
 
   const loveStyle = {
     width: "50px",
@@ -158,7 +173,7 @@ export function CatInterface({
                 <Progress className="play" value={33} />
               </div>
             </div>
-            <div className="actionLog basis-2/3 flex flex-col overflow-y-auto p-2 bg-slate-400">
+            <div className="actionLog basis-2/3 flex flex-col overflow-y-auto p-2 bg-slate-400 max-h-32">
               {actionHistory.map((action, index) => (
                 <p key={index}>{action}</p>
               ))}

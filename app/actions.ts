@@ -32,7 +32,7 @@ export async function UpdateRelationship(update: UpdatedData) {
 
   const data = await prisma.relationship.update({
     where: {
-      id: update.id,
+      id: update.relationshipId,
     },
     data: {
       love: love,
