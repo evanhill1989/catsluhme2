@@ -24,3 +24,22 @@ export async function CreateRelationship(formData: FormData) {
   // don't think i need -- return redirect("/") -- maybe i do
   return revalidatePath(`/cat/${catId}`);
 }
+
+export async function UpdateRelationship(update: UpdatedData) {
+  const love = update.love as number;
+  const trust = update.trust as number;
+  const affection = update.affection as number;
+
+  const data = await prisma.relationship.update({
+    where: {
+      id: update.id,
+    },
+    data: {
+      love: love,
+      trust: trust,
+      affection: affection,
+    },
+  });
+
+  return revalidatePath(`/cat/${data.catId}`);
+}
