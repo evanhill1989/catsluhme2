@@ -1,5 +1,7 @@
 // hooks/useCatMood.ts
 
+"use client";
+
 import { useState, useEffect } from "react";
 import { calculateCatMood } from "../utils/calculateCatMood";
 
@@ -9,6 +11,13 @@ type InteractionType = "pet" | "feed" | "play" | "hold" | "ignore" | "pss pss";
 interface CatMoodActions {
   onInteract: (interaction: InteractionType) => void;
 }
+
+type CatFactors = {
+  loving: number;
+  playful: number;
+  trust: number;
+  affection: number;
+};
 
 export function useCatMood(moodFactors: CatFactors): [number, CatMoodActions] {
   const [factors, setFactors] = useState<CatFactors>(moodFactors);

@@ -25,21 +25,31 @@ export async function CreateRelationship(formData: FormData) {
   return revalidatePath(`/cat/${catId}`);
 }
 
-export async function UpdateRelationship(update: UpdatedData) {
-  const love = update.love as number;
-  const trust = update.trust as number;
-  const affection = update.affection as number;
+export async function UpdateRelationship(
+  relationshipId: string,
+  moodChange: number,
+  catId: string
+) {
+  console.log("Inside UpdateRelationship", relationshipId, moodChange);
 
-  const data = await prisma.relationship.update({
-    where: {
-      id: update.relationshipId,
-    },
-    data: {
-      love: love,
-      trust: trust,
-      affection: affection,
-    },
-  });
+  // Calculate the distributed change for each field
+  const changePerField = moodChange / 3;
 
-  return revalidatePath(`/cat/${data.catId}`);
+  // Directly apply the calculated changes to the database
+  try {
+    const updatedRelationship = await prisma.relationship.update({
+      where: { id: relationshipId },
+      data: {
+        love: { increment: changePerField },
+        trust: { increment: changePerField },
+        affection: { increment: changePerField },
+      },
+    });
+
+    console.log("Relationship updated successfully", updatedRelationship);
+    return revalidatePath(`/cat/${catId}`);
+  } catch (error) {
+    console.error("Error updating relationship", error);
+    throw new Error("Failed to update relationship");
+  }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -68,34 +68,28 @@ export function CatInterface({
 
   // Here is the useEffect hook that listens for changes in actionHistory
   const [actionHistory, setActionHistory] = useState<string[]>([]);
+  const [initialMood, setInitialMood] = useState<number>(mood);
+  const [newMood, setNewMood] = useState<number>(mood);
 
-  const updateRelationshipInDB = useCallback(async () => {
-    // Assuming updateRelationship() takes an object with userId, catId, and a score or other metrics to update the relationship
-    await UpdateRelationship({
-      relationshipId: relationshipId,
-      love: relationshipLove,
-      trust: relationshipTrust,
-      affection: relationshipAffection,
-      score: interactionImpactScore,
-    });
-    console.log(
-      "Relationship updated successfully within CatInterface.tsx updateRelationshipInDB()"
-    );
-    // Reset the interactionImpactScore if necessary, or adjust logic as needed
-    interactionImpactScore = 0;
-  }, [
-    relationshipId,
-    relationshipLove,
-    relationshipTrust,
-    relationshipAffection /* any other dependencies */,
-  ]);
+  let moodChangeRef = useRef<number>(initialMood);
 
   useEffect(() => {
     // Check if the actionHistory length is a multiple of 10 and greater than 0
-    if (actionHistory.length > 0 && actionHistory.length % 10 === 0) {
-      updateRelationshipInDB();
+    if (actionHistory.length === 0) {
+      setInitialMood(mood);
+    } else if (actionHistory.length > 0 && actionHistory.length % 10 === 0) {
+      setNewMood(mood); // infinite loop if you pull this out of useEffect
+      console.log("initialMood: ", initialMood, "mood: ", newMood);
+      moodChangeRef.current = newMood - initialMood;
+
+      UpdateRelationship(relationshipId, moodChangeRef.current, catId);
+    } else {
+      setNewMood(mood); // infinite loop if you pull this out of useEffect
+
+      moodChangeRef.current = newMood - initialMood;
     }
-  }, [actionHistory]); // Depend on actionHistory to trigger this effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actionHistory, actionHistory.length, mood]); // Depend on actionHistory to trigger this effect.
 
   const handleInteraction = (interaction: InteractionType) => {
     onInteract(interaction);
@@ -114,37 +108,46 @@ export function CatInterface({
     setActionHistory((prevHistory) => {
       const updatedHistory = [...prevHistory, newActionMessage];
       if (updatedHistory.length % 10 === 0) {
-        updateRelationshipInDB();
       }
       return updatedHistory;
     });
+  };
+
+  const relationshipToDegrees = (relationshipFactor: number) => {
+    return (relationshipFactor * 360) / 100;
   };
 
   const loveStyle = {
     width: "50px",
     height: "50px",
     borderRadius: "50%",
-    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipLove}deg, black ${relationshipLove}deg, black ${
-      360 - relationshipLove
-    }deg, #0000 ${360 - relationshipLove}deg)`,
+    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipToDegrees(
+      relationshipLove
+    )}deg, black ${relationshipToDegrees(relationshipLove)}deg, black ${
+      360 - relationshipToDegrees(relationshipLove)
+    }deg, #0000 ${360 - relationshipToDegrees(relationshipLove)}deg)`,
   };
 
   const trustStyle = {
     width: "50px",
     height: "50px",
     borderRadius: "50%",
-    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipTrust}deg, black ${relationshipTrust}deg, black ${
-      360 - relationshipTrust
-    }deg, #0000 ${360 - relationshipTrust}deg)`,
+    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipToDegrees(
+      relationshipTrust
+    )}deg, black ${relationshipToDegrees(relationshipTrust)}deg, black ${
+      360 - relationshipToDegrees(relationshipTrust)
+    }deg, #0000 ${360 - relationshipToDegrees(relationshipTrust)}deg)`,
   };
 
   const durationStyle = {
     width: "50px",
     height: "50px",
     borderRadius: "50%",
-    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${duration}deg, black ${duration}deg, black ${
-      360 - duration
-    }deg, #0000 ${360 - duration}deg)`,
+    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipToDegrees(
+      duration
+    )}deg, black ${relationshipToDegrees(duration)}deg, black ${
+      360 - relationshipToDegrees(duration)
+    }deg, #0000 ${360 - relationshipToDegrees(duration)}deg)`,
   };
 
   return (
@@ -156,6 +159,7 @@ export function CatInterface({
 
             <div className="mood basis-1/3 flex flex-col  w-full">
               <p>Current mood: {mood}</p>
+              <p>Mood change: {moodChangeRef.current}</p>
               <div>
                 <p>energy</p>
                 <Progress className="energy" value={33} />
