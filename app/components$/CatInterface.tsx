@@ -7,6 +7,15 @@ import { Progress } from "@/components/ui/progress";
 import { useCatMood } from "../hooks/useCatMood";
 import { UpdateRelationship } from "@/app/actions";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 interface iAppProps {
   imagePath: string;
   catId: string;
@@ -151,38 +160,45 @@ export function CatInterface({
   };
 
   return (
-    <div className=" h-full bg-[url(https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/BackgroundTreesGrass.svg?t=2024-03-13T21%3A40%3A05.276Z)]">
+    <div className=" h-full p-5 bg-[url(https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/BackgroundTreesGrass.svg?t=2024-03-13T21%3A40%3A05.276Z)]">
       <div className="gameInterface min-h-full w-full grid grid-cols-12 grid-rows-5 ">
         <div className="gameDisplay grid grid-rows-subgrid min-h-full grid-cols-subgrid col-start-1 col-end-13 row-start-1 row-end-5">
-          <div className="currentState col-start-1 col-end-3 row-start-1 row-end-4 flex flex-col">
-            <h2>{catName}</h2>
+          <Card className="currentState col-start-1 col-end-3 row-start-1 row-end-4 flex flex-col">
+            <CardHeader>
+              <CardTitle>{catName}</CardTitle>
+              <CardDescription></CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mood basis-1/3 flex flex-col  w-full">
+                <p>Mood</p>
+                <Progress className="mood" value={mood * 10} />
 
-            <div className="mood basis-1/3 flex flex-col  w-full">
-              <p>Current mood: {mood}</p>
-              <p>Mood change: {moodChangeRef.current}</p>
-              <div>
-                <p>energy</p>
-                <Progress className="energy" value={33} />
+                <div>
+                  <p>energy</p>
+                  <Progress className="energy" value={33} />
+                </div>
+                <div>
+                  <p>love</p>
+                  <Progress className="love" value={33} />
+                </div>
+                <div>
+                  <p>hunger</p>
+                  <Progress className="hunger" value={33} />
+                </div>
+                <div>
+                  <p>play</p>
+                  <Progress className="play" value={33} />
+                </div>
               </div>
-              <div>
-                <p>love</p>
-                <Progress className="love" value={33} />
+              <div className="actionLog basis-2/3 flex flex-col overflow-y-auto p-2 bg-slate-400 max-h-32">
+                {actionHistory.map((action, index) => (
+                  <p key={index}>{action}</p>
+                ))}
               </div>
-              <div>
-                <p>hunger</p>
-                <Progress className="hunger" value={33} />
-              </div>
-              <div>
-                <p>play</p>
-                <Progress className="play" value={33} />
-              </div>
-            </div>
-            <div className="actionLog basis-2/3 flex flex-col overflow-y-auto p-2 bg-slate-400 max-h-32">
-              {actionHistory.map((action, index) => (
-                <p key={index}>{action}</p>
-              ))}
-            </div>
-          </div>
+            </CardContent>
+            <CardFooter></CardFooter>
+          </Card>
+
           <div className="catSprite col-start-5 col-end-9 row-start-1 row-end-5 mt-4 mb-4">
             <Image
               src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${imagePath}`}
@@ -191,13 +207,13 @@ export function CatInterface({
               height={400}
             />
           </div>
-          <div className="relationshipStates col-start-12 col-end-13 row-start-1 row-end-5 border-2 border-black flex flex-col justify-around items-center ">
+          <Card className="relationshipStates col-start-12 col-end-13 row-start-1 row-end-5 flex flex-col justify-around items-center ">
             <div style={loveStyle} className=" friendship "></div>
             <div style={trustStyle} className=" friendship "></div>
             <div style={durationStyle} className=" friendship "></div>
-          </div>
+          </Card>
         </div>
-        <div className="gameActions  grid grid-rows-subgrid grid-cols-subgrid col-start-4 col-end-10 row-start-5 gap-12">
+        <Card className="gameActions grid grid-rows-subgrid grid-cols-subgrid col-start-4 col-end-10 row-start-5 gap-12 place-items-center">
           <Button
             className=" col-start-1 col-end-2 "
             onClick={() => handleInteraction("play")}
@@ -234,7 +250,7 @@ export function CatInterface({
           >
             Ignore
           </Button>
-        </div>
+        </Card>
       </div>
     </div>
   );
