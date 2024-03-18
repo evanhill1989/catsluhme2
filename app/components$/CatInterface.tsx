@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
+
+import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useCatMood } from "../hooks/useCatMood";
@@ -15,6 +18,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import { GameActions } from "./GameActions";
+import { useScrollToBottom } from "../hooks/useAutoScrollToBottom";
 
 interface iAppProps {
   imagePath: string;
@@ -75,6 +81,9 @@ export function CatInterface({
   };
   const [mood, { onInteract }] = useCatMood(moodFactors);
 
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+
   // Here is the useEffect hook that listens for changes in actionHistory
   const [actionHistory, setActionHistory] = useState<string[]>([]);
   const [initialMood, setInitialMood] = useState<number>(mood);
@@ -100,6 +109,7 @@ export function CatInterface({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionHistory, actionHistory.length, mood]); // Depend on actionHistory to trigger this effect.
 
+  // Passed as a prop to GameActions , but runs here to update actionHistory
   const handleInteraction = (interaction: InteractionType) => {
     onInteract(interaction);
     evaluateInteractionImpact(interaction); // Adjust the interaction impact score.
@@ -126,131 +136,76 @@ export function CatInterface({
     return (relationshipFactor * 360) / 100;
   };
 
-  const loveStyle = {
-    width: "50px",
-    height: "50px",
-    borderRadius: "50%",
-    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipToDegrees(
-      relationshipLove
-    )}deg, black ${relationshipToDegrees(relationshipLove)}deg, black ${
-      360 - relationshipToDegrees(relationshipLove)
-    }deg, #0000 ${360 - relationshipToDegrees(relationshipLove)}deg)`,
-  };
+  function useAutoScrollToBottom(dependencyArray) {
+    const containerRef = useRef(null);
 
-  const trustStyle = {
-    width: "50px",
-    height: "50px",
-    borderRadius: "50%",
-    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipToDegrees(
-      relationshipTrust
-    )}deg, black ${relationshipToDegrees(relationshipTrust)}deg, black ${
-      360 - relationshipToDegrees(relationshipTrust)
-    }deg, #0000 ${360 - relationshipToDegrees(relationshipTrust)}deg)`,
-  };
+    useEffect(() => {
+      const container = containerRef.current;
+      if (container) {
+        // Scroll to the bottom
+        container.scrollTop = container.scrollHeight;
+      }
+    }, [dependencyArray]); // Dependency array ensures effect runs on change
 
-  const durationStyle = {
-    width: "50px",
-    height: "50px",
-    borderRadius: "50%",
-    backgroundImage: `conic-gradient(from 0deg at 50% 50%, #0000 0deg, #0000 ${relationshipToDegrees(
-      duration
-    )}deg, black ${relationshipToDegrees(duration)}deg, black ${
-      360 - relationshipToDegrees(duration)
-    }deg, #0000 ${360 - relationshipToDegrees(duration)}deg)`,
-  };
+    return containerRef;
+  }
 
+  const actionHistoryRef = useAutoScrollToBottom(actionHistory);
   return (
-    <div className=" h-full p-5 bg-[url(https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/BackgroundTreesGrass.svg?t=2024-03-13T21%3A40%3A05.276Z)]">
-      <div className="gameInterface min-h-full w-full grid grid-cols-12 grid-rows-5 ">
-        <div className="gameDisplay grid grid-rows-subgrid min-h-full grid-cols-subgrid col-start-1 col-end-13 row-start-1 row-end-5">
-          <Card className="currentState col-start-1 col-end-3 row-start-1 row-end-4 flex flex-col">
-            <CardHeader>
-              <CardTitle>{catName}</CardTitle>
-              <CardDescription></CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mood basis-1/3 flex flex-col  w-full">
-                <p>Mood</p>
-                <Progress className="mood" value={mood * 10} />
+    <div className=" gameInterface  w-full grid grid-cols-12 grid-rows-7  bg-[url(https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/BackgroundTreesGrass.svg?t=2024-03-13T21%3A40%3A05.276Z)] bg-no-repeat bg-cover bg-bottom">
+      <Card className="currentState col-start-1 col-end-3 row-start-1 flex flex-col">
+        <CardHeader>
+          <CardTitle>{catName}</CardTitle>
+          <CardDescription></CardDescription>
+        </CardHeader>
 
-                <div>
-                  <p>energy</p>
-                  <Progress className="energy" value={33} />
-                </div>
-                <div>
-                  <p>love</p>
-                  <Progress className="love" value={33} />
-                </div>
-                <div>
-                  <p>hunger</p>
-                  <Progress className="hunger" value={33} />
-                </div>
-                <div>
-                  <p>play</p>
-                  <Progress className="play" value={33} />
-                </div>
-              </div>
-              <div className="actionLog basis-2/3 flex flex-col overflow-y-auto p-2 bg-slate-400 max-h-32">
-                {actionHistory.map((action, index) => (
-                  <p key={index}>{action}</p>
-                ))}
-              </div>
-            </CardContent>
-            <CardFooter></CardFooter>
-          </Card>
+        <CardContent>
+          <div className="mood basis-1/3 flex flex-col text-sm w-full">
+            <p className="text-sm">Mood</p>
+            <Progress className="mood" value={mood * 10} />
 
-          <div className="catSprite col-start-5 col-end-9 row-start-1 row-end-5 mt-4 mb-4">
-            <Image
-              src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${imagePath}`}
-              alt="Image of a Cat"
-              width={400}
-              height={400}
-            />
+            <div>
+              <p>energy</p>
+              <Progress className="energy" value={33} />
+            </div>
+            <div>
+              <p>love</p>
+              <Progress className="love" value={33} />
+            </div>
+            <div>
+              <p>hunger</p>
+              <Progress className="hunger" value={33} />
+            </div>
+            <div>
+              <p>play</p>
+              <Progress className="play" value={33} />
+            </div>
           </div>
-          <Card className="relationshipStates col-start-12 col-end-13 row-start-1 row-end-5 flex flex-col justify-around items-center ">
-            <div style={loveStyle} className=" friendship "></div>
-            <div style={trustStyle} className=" friendship "></div>
-            <div style={durationStyle} className=" friendship "></div>
-          </Card>
-        </div>
-        <Card className="gameActions grid grid-rows-subgrid grid-cols-subgrid col-start-4 col-end-10 row-start-5 gap-12 place-items-center">
-          <Button
-            className=" col-start-1 col-end-2 "
-            onClick={() => handleInteraction("play")}
+          <div
+            ref={actionHistoryRef}
+            className="actionLog basis-2/3 flex flex-col overflow-y-auto p-2 bg-slate-400 max-h-32"
           >
-            Play
-          </Button>
-          <Button
-            className=" col-start-2 col-end-3 "
-            onClick={() => handleInteraction("feed")}
-          >
-            Treat
-          </Button>
-          <Button
-            className=" col-start-3 col-end-4 "
-            onClick={() => handleInteraction("pet")}
-          >
-            Pet
-          </Button>
-          <Button
-            className=" col-start-4 col-end-5 "
-            onClick={() => handleInteraction("pss pss")}
-          >
-            Psst Psst
-          </Button>
-          <Button
-            className=" col-start-5 col-end-6 "
-            onClick={() => handleInteraction("hold")}
-          >
-            Hold
-          </Button>
-          <Button
-            className=" col-start-6 col-end-7 "
-            onClick={() => handleInteraction("ignore")}
-          >
-            Ignore
-          </Button>
-        </Card>
+            {actionHistory.map((action, index) => (
+              <p key={index}>{action}</p>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter></CardFooter>
+      </Card>
+
+      <Card className="relationshipStates col-start-12 col-end-13  flex flex-col justify-around items-center ">
+        <div className=" love ">love</div>
+        <div className=" trust ">trust</div>
+        <div className=" friendship ">duration</div>
+      </Card>
+      <div className=" gameActions col-start-5 col-end-8  place-self-center">
+        <Image
+          src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${imagePath}`}
+          alt="Image of a Cat"
+          width={200}
+          height={200}
+        />
+        <GameActions handleInteraction={handleInteraction} />
       </div>
     </div>
   );

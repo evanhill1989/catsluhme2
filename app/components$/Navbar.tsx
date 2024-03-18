@@ -7,7 +7,7 @@ import { UserNav } from "./UserNav";
 
 export function Navbar() {
   return (
-    <nav className="w-full border-b">
+    <nav className="w-full border-b h-[10vh]">
       <div className="flex items-center justify-between mx-auto px-5 container lg:px-10 py-5">
         <Link href="/">
           <Image src={Luna} alt="CatLogo" className="w-16" />

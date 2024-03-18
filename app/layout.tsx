@@ -17,11 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <div className="grid grid-rows-layout min-h-screen">
-          <Navbar />
-          <main>{children}</main>
-        </div>
+      {/* inter.className removed temporarily from body */}
+      <body>
+        <Navbar />
+        <main>{children}</main>
       </body>
     </html>
   );
