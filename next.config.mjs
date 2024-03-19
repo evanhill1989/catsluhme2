@@ -13,6 +13,11 @@ const nextConfig = {
         hostname: "cdn.pixabay.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "mvqxbokxwtxywgeiuqap.supabase.co",
+        port: "",
+      },
     ],
   },
 };

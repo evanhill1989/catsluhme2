@@ -56,6 +56,15 @@ const evaluateInteractionImpact = (interaction: InteractionType) => {
   interactionImpactScore += impactValues[interaction] || 0; // Adjust score based on interaction; fallback to 0 for unlisted interactions.
 };
 
+const interactionTypeMapping = {
+  "You petted Oscar.": "pet",
+  "You gave Oscar a treat.": "feed",
+  "You played with Oscar.": "play",
+  "You called Oscar over.": "pss pss",
+  "You held Oscar.": "hold",
+  "You ignored Oscar.": "ignore",
+};
+
 export function CatInterface({
   imagePath,
   catId,
@@ -79,29 +88,92 @@ export function CatInterface({
     trust: relationshipTrust,
     affection: relationshipAffection,
   };
-  const [mood, { onInteract }] = useCatMood(moodFactors);
+  // Here is the useEffect hook that listens for changes in actionHistory
+  const [actionHistory, setActionHistory] = useState<string[]>([]);
+
+  const interactionFrequencies = actionHistory.reduce((acc, action) => {
+    const interaction = interactionTypeMapping[action];
+    if (interaction) {
+      acc[interaction] = (acc[interaction] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const [mood, { onInteract }] = useCatMood(
+    moodFactors,
+    interactionFrequencies
+  );
+
+  // const [mood, { onInteract }] = useCatMood(moodFactors);
 
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
-  // Here is the useEffect hook that listens for changes in actionHistory
-  const [actionHistory, setActionHistory] = useState<string[]>([]);
   const [initialMood, setInitialMood] = useState<number>(mood);
   const [newMood, setNewMood] = useState<number>(mood);
 
   let moodChangeRef = useRef<number>(initialMood);
 
+  //create a new variable from actionHistory that stores the action types.
+
+  // function calculateMultiplier(responseCounts) {
+  //   const thresholds = [3, 6, 9]; // Example thresholds
+  //   const multipliers = {
+  //     pet: 1,
+  //     feed: 1,
+  //     play: 1,
+  //     hold: 1,
+  //     ignore: 1,
+  //     'pss pss': 1,
+  //   };
+
+  //   Object.keys(responseCounts).forEach(action => {
+  //     const count = responseCounts[action];
+  //     if (count > thresholds[2]) {
+  //       multipliers[action] = 0.5; // 50% effectiveness after 9 occurrences
+  //     } else if (count > thresholds[1]) {
+  //       multipliers[action] = 0.75; // 75% effectiveness after 6 occurrences
+  //     } else if (count > thresholds[0]) {
+  //       multipliers[action] = 0.9; // 90% effectiveness after 3 occurrences
+  //     }
+  //   });
+
+  //   return multipliers;
+  // }
+
   useEffect(() => {
     // Check if the actionHistory length is a multiple of 10 and greater than 0
+    // if (actionHistory.length > 0) {
+    //   const responseCounts = tabulateResponses(actionHistory);
+    //   const multiplier = calculateMultiplier(responseCounts);
+
+    //   // Assume calculateMultiplier returns an object with multipliers for each action type
+    //   const newMoodFactors = {
+    //     ...moodFactors, // Your existing mood factors here
+    //     // Apply multipliers to the adjustment values
+    //     // This is an illustrative example; you'll adjust based on your application's logic
+    //     affection: moodFactors.affection * multiplier.pet, // Assuming 'pet' action affects 'affection'
+    //     trust: moodFactors.trust * multiplier.feed, // Assuming 'feed' action affects 'trust'
+    //     // Add other factors as necessary
+    //   };
+
+    //   // This is where you would call a function similar to onInteract but with adjusted values based on the multiplier
+    //   // For simplicity, you might encapsulate the logic for adjusting moodFactors based on interaction counts directly in here or in a separate function
+    //   updateMoodFactors(newMoodFactors); // You'll need to implement this function
+    // }
+
     if (actionHistory.length === 0) {
       setInitialMood(mood);
     } else if (actionHistory.length > 0 && actionHistory.length % 10 === 0) {
       setNewMood(mood); // infinite loop if you pull this out of useEffect
       console.log("initialMood: ", initialMood, "mood: ", newMood);
+      console.log("actionHistory: ", actionHistory);
       moodChangeRef.current = newMood - initialMood;
-
+      // Change relationship factors in DB every so often (currently 10 actions)
       UpdateRelationship(relationshipId, moodChangeRef.current, catId);
     } else {
+      console.log("initialMood: ", initialMood, "mood: ", newMood);
+      console.log("actionHistory: ", actionHistory);
       setNewMood(mood); // infinite loop if you pull this out of useEffect
 
       moodChangeRef.current = newMood - initialMood;
@@ -200,7 +272,7 @@ export function CatInterface({
       </Card>
       <div className=" gameActions col-start-5 col-end-8  place-self-center">
         <Image
-          src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/${imagePath}`}
+          src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/Oscar_Interface.svg`}
           alt="Image of a Cat"
           width={200}
           height={200}

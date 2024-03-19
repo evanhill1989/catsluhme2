@@ -19,70 +19,48 @@ type CatFactors = {
   affection: number;
 };
 
-export function useCatMood(moodFactors: CatFactors): [number, CatMoodActions] {
+// Assuming you add a new parameter for interaction frequencies
+export function useCatMood(
+  moodFactors: CatFactors,
+  interactionFrequencies: Record<InteractionType, number>
+): [number, CatMoodActions] {
   const [factors, setFactors] = useState<CatFactors>(moodFactors);
   const [mood, setMood] = useState<number>(0);
 
-  // Recalculate mood whenever factors change
+  function getAdjustmentFactor(frequency) {
+    // Example logic for diminishing returns
+    if (frequency <= 3) return 1; // Full effect
+    if (frequency <= 6) return 0.75; // Reduced effect
+    if (frequency <= 9) return 0.5; // Even more reduced
+    return -0.25; // Minimal effect after 9 interactions
+  }
+
   useEffect(() => {
     const newMood = calculateCatMood(factors);
     setMood(newMood);
   }, [factors]);
 
-  // Define how different interactions affect the mood factors
   const onInteract = (interaction: InteractionType) => {
-    // This is a simplified example. You'd have more complex logic based on the interaction type.
-    // Adjust factors accordingly.
-    let lovingAdjustment = 0,
-      playfulAdjustment = 0,
-      trustAdjustment = 0,
-      affectionAdjustment = 0;
-    switch (interaction) {
-      case "pet":
-        affectionAdjustment = 1;
-        lovingAdjustment = 1;
-        break;
-      case "feed":
-        trustAdjustment = 2;
-        playfulAdjustment = 1;
-        break;
-      case "play":
-        playfulAdjustment = factors.playful > 0 ? 3 : -1;
-        affectionAdjustment = 2;
-        break;
-      case "hold":
-        affectionAdjustment = factors.affection > 0 ? 2 : -2;
-        trustAdjustment = 1;
-        break;
-      case "ignore":
-        trustAdjustment = -1;
-        break;
-      case "pss pss":
-        lovingAdjustment = 2;
-        break;
-      default:
-        // No default adjustment needed
-        break;
+    // Now consider interactionFrequencies to adjust the impact
+    // Example: Fetch the current frequency for this interaction
+    const frequency = interactionFrequencies[interaction] || 0;
+    const adjustmentFactor = getAdjustmentFactor(frequency); // Implement this based on your diminishing returns logic
+
+    // Adjust mood factors using adjustmentFactor
+    // Example: For a 'pet' interaction with diminishing returns
+    if (interaction === "pet") {
+      setFactors((prev) => ({
+        ...prev,
+        affection: Math.max(
+          -10,
+          Math.min(10, prev.affection + 1 * adjustmentFactor)
+        ),
+        loving: Math.max(-10, Math.min(10, prev.loving + 1 * adjustmentFactor)),
+      }));
+      console.log("Affection: ", factors.affection);
+      console.log("Loving: ", factors.loving);
     }
-    console.log(
-      `Interaction: ${interaction}. Adjusting factors: [loving: ${lovingAdjustment}, playful: ${playfulAdjustment}, trust: ${trustAdjustment}, affection: ${affectionAdjustment}]`
-    );
-    // Apply the adjustment. Ensure you're not exceeding the -10 to 10 bounds for each factor.
-    setFactors((prevFactors) => ({
-      loving: Math.max(
-        -10,
-        Math.min(10, prevFactors.loving + lovingAdjustment)
-      ),
-      playful: Math.max(
-        -10,
-        Math.min(10, prevFactors.playful + playfulAdjustment)
-      ),
-      trust: Math.max(-10, Math.min(10, prevFactors.trust + trustAdjustment)),
-      affection: Math.max(
-        -10,
-        Math.min(10, prevFactors.affection + affectionAdjustment)
-      ),
-    }));
+    // Handle other interactions similarly
   };
 
   return [mood, { onInteract }];
