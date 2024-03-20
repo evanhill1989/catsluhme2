@@ -14,6 +14,12 @@ import {
 import { CatInterface } from "@/app/components$/CatInterface";
 import { NewRelationshipSubmit } from "@/app/components$/SubmitButtons";
 import { CreateRelationship } from "@/app/actions";
+import { redirect } from "next/navigation";
+import {
+  RegisterLink,
+  LoginLink,
+  LogoutLink,
+} from "@kinde-oss/kinde-auth-nextjs/components";
 
 // This cat page route handles initial data fetching for the cat based on params
 {
@@ -68,6 +74,9 @@ async function ShowInterface({ params }: { params: { id: string } }) {
   const { getUser } = getKindeServerSession();
   const user = (await getUser()) as any;
   const cat = (await getCat(params.id)) as any;
+  if (!user) {
+    redirect("/");
+  }
   if (!cat) {
     return (
       <div className="w-full grid place-self-center">
@@ -75,6 +84,7 @@ async function ShowInterface({ params }: { params: { id: string } }) {
       </div>
     );
   }
+
   const relationship = await getRelationship({
     userId: user.id as string,
     catId: cat.id as string,

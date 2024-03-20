@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useCatMood } from "../hooks/useCatMood";
 import { UpdateRelationship } from "@/app/actions";
+import { SlEnergy, SlHeart } from "react-icons/sl";
+import { GiOpenedFoodCan, GiYarn } from "react-icons/gi";
 
 import {
   Card,
@@ -224,53 +226,51 @@ export function CatInterface({
 
   const actionHistoryRef = useAutoScrollToBottom(actionHistory);
   return (
-    <div className=" gameInterface  w-full grid grid-cols-12 grid-rows-7  bg-[url(https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/BackgroundTreesGrass.svg?t=2024-03-13T21%3A40%3A05.276Z)] bg-no-repeat bg-cover bg-bottom">
-      <Card className="currentState col-start-1 col-end-3 row-start-1 flex flex-col">
+    <div className=" gameInterface h-[90vh] p-4 w-full grid grid-cols-3 grid-rows-[auto 1fr] bg-[url(https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/BackgroundTreesGrass.svg?t=2024-03-13T21%3A40%3A05.276Z)] bg-no-repeat bg-cover bg-bottom">
+      <Card className="currentState  flex flex-col  col-start-1 col-end-2 row-start-1  justify-self-start">
         <CardHeader>
           <CardTitle>{catName}</CardTitle>
           <CardDescription></CardDescription>
         </CardHeader>
 
-        <CardContent>
-          <div className="mood basis-1/3 flex flex-col text-sm w-full">
-            <p className="text-sm">Mood</p>
-            <Progress className="mood" value={mood * 10} />
+        <CardContent className="text-sm">
+          <p>Mood</p>
+          <Progress className="mood" value={mood * 10} />
 
-            <div>
-              <p>energy</p>
-              <Progress className="energy" value={33} />
-            </div>
-            <div>
-              <p>love</p>
-              <Progress className="love" value={33} />
-            </div>
-            <div>
-              <p>hunger</p>
-              <Progress className="hunger" value={33} />
-            </div>
-            <div>
-              <p>play</p>
-              <Progress className="play" value={33} />
-            </div>
+          <div className="flex">
+            <SlEnergy />
+            <Progress className="energy" value={33} />
           </div>
+          <div className="flex">
+            <SlHeart />
+            <Progress className="love" value={33} />
+          </div>
+          <div className="flex">
+            <GiOpenedFoodCan />
+            <Progress className="hunger" value={33} />
+          </div>
+          <div className="flex">
+            <GiYarn />
+            <Progress className="play" value={33} />
+          </div>
+
           <div
             ref={actionHistoryRef}
-            className="actionLog basis-2/3 flex flex-col overflow-y-auto p-2 bg-slate-400 max-h-32"
+            className="actionLog h-16 max-h-16 flex flex-col overflow-y-auto p-2 bg-slate-400 "
           >
             {actionHistory.map((action, index) => (
               <p key={index}>{action}</p>
             ))}
           </div>
         </CardContent>
-        <CardFooter></CardFooter>
       </Card>
 
-      <Card className="relationshipStates col-start-12 col-end-13  flex flex-col justify-around items-center ">
+      <Card className="relationshipStates self-start justify-self-end flex flex-col justify-around items-center col-start-3 col-end-4 row-start-1">
         <div className=" love ">love</div>
         <div className=" trust ">trust</div>
         <div className=" friendship ">duration</div>
       </Card>
-      <div className=" gameActions col-start-5 col-end-8  place-self-center">
+      <div className=" gameActions  place-self-center col-start-2 col-end-3 row-start-2">
         <Image
           src={`https://mvqxbokxwtxywgeiuqap.supabase.co/storage/v1/object/public/cats/Oscar_Interface.svg`}
           alt="Image of a Cat"
