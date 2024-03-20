@@ -27,12 +27,42 @@ export function useCatMood(
   const [factors, setFactors] = useState<CatFactors>(moodFactors);
   const [mood, setMood] = useState<number>(0);
 
-  function getAdjustmentFactor(frequency) {
+  function getBaseAdjustmentFactor(frequency, interaction) {
     // Example logic for diminishing returns
-    if (frequency <= 3) return 1; // Full effect
-    if (frequency <= 6) return 0.75; // Reduced effect
-    if (frequency <= 9) return 0.5; // Even more reduced
-    return -0.25; // Minimal effect after 9 interactions
+    switch (interaction) {
+      case "pet":
+        if (frequency <= 3) return 1; // Full effect
+        if (frequency <= 6) return 0.75; // Reduced effect
+        if (frequency <= 9) return 0.5; // Even more reduced
+        return -0.25; // Negative effect after 9 interactions
+      case "feed":
+        if (frequency <= 3) return 1; // Full effect
+        if (frequency <= 6) return 0.75; // Reduced effect
+        if (frequency <= 9) return 0.5; // Even more reduced
+        return -0.25; // Negative effect after 9 interactions
+      case "play":
+        if (frequency <= 3) return 1; // Full effect
+        if (frequency <= 6) return 0.75; // Reduced effect
+        if (frequency <= 9) return 0.5; // Even more reduced
+        return -0.25; // Negative effect after 9 interactions
+      case "hold":
+        if (frequency <= 3) return 1; // Full effect
+        if (frequency <= 6) return 0.75; // Reduced effect
+        if (frequency <= 9) return 0.5; // Even more reduced
+        return -0.25; // Negative effect after 9 interactions
+      case "ignore":
+        if (frequency <= 3) return 1; // Full effect
+        if (frequency <= 6) return 0.75; // Reduced effect
+        if (frequency <= 9) return 0.5; // Even more reduced
+        return -0.25; // Negative effect after 9 interactions
+      case "pss pss":
+        if (frequency <= 3) return 0.5; // Full effect
+        if (frequency <= 6) return 0.25; // Reduced effect
+        // Even more reduced
+        return 0; // Nullish effect after 9 interactions
+    }
+
+    return 1;
   }
 
   useEffect(() => {
@@ -44,23 +74,121 @@ export function useCatMood(
     // Now consider interactionFrequencies to adjust the impact
     // Example: Fetch the current frequency for this interaction
     const frequency = interactionFrequencies[interaction] || 0;
-    const adjustmentFactor = getAdjustmentFactor(frequency); // Implement this based on your diminishing returns logic
-
+    const adjustmentFactor = getBaseAdjustmentFactor(frequency, interaction); // Implement this based on your diminishing returns logic
     // Adjust mood factors using adjustmentFactor
     // Example: For a 'pet' interaction with diminishing returns
-    if (interaction === "pet") {
-      setFactors((prev) => ({
-        ...prev,
-        affection: Math.max(
-          -10,
-          Math.min(10, prev.affection + 1 * adjustmentFactor)
-        ),
-        loving: Math.max(-10, Math.min(10, prev.loving + 1 * adjustmentFactor)),
-      }));
-      console.log("Affection: ", factors.affection);
-      console.log("Loving: ", factors.loving);
+
+    switch (interaction) {
+      case "pet":
+        setFactors((prev) => ({
+          ...prev,
+          loving: Math.max(
+            -10,
+            Math.min(10, prev.loving + 1 * adjustmentFactor)
+          ),
+          playful: Math.max(
+            -10,
+            Math.min(10, prev.playful + 1 * adjustmentFactor)
+          ),
+          trust: Math.max(-10, Math.min(10, prev.trust + 1 * adjustmentFactor)),
+          affection: Math.max(
+            -10,
+            Math.min(10, prev.affection + 1 * adjustmentFactor)
+          ),
+        }));
+        console.log("Loving: ", factors.loving);
+        console.log("Trust: ", factors.trust);
+        break;
+      case "feed":
+        setFactors((prev) => ({
+          ...prev,
+          loving: Math.max(
+            -10,
+            Math.min(10, prev.loving + 1 * adjustmentFactor)
+          ),
+
+          trust: Math.max(-10, Math.min(10, prev.trust + 1 * adjustmentFactor)),
+          affection: Math.max(
+            -10,
+            Math.min(10, prev.affection + 1 * adjustmentFactor)
+          ),
+        }));
+        console.log("Trust: ", factors.trust);
+        console.log("Affection: ", factors.affection);
+        break;
+      case "play":
+        setFactors((prev) => ({
+          ...prev,
+          loving: Math.max(
+            -10,
+            Math.min(10, prev.loving + 1 * adjustmentFactor)
+          ),
+          playful: Math.max(
+            -10,
+            Math.min(10, prev.playful + 1 * adjustmentFactor)
+          ),
+          trust: Math.max(-10, Math.min(10, prev.trust + 1 * adjustmentFactor)),
+        }));
+        console.log("Affection: ", factors.affection);
+        console.log("Trust: ", factors.trust);
+        break;
+      case "hold":
+        setFactors((prev) => ({
+          ...prev,
+          loving: Math.max(
+            -10,
+            Math.min(10, prev.loving + 1 * adjustmentFactor)
+          ),
+          playful: Math.max(
+            -10,
+            Math.min(10, prev.playful + 1 * adjustmentFactor)
+          ),
+          trust: Math.max(-10, Math.min(10, prev.trust + 1 * adjustmentFactor)),
+          affection: Math.max(
+            -10,
+            Math.min(10, prev.affection + 1 * adjustmentFactor)
+          ),
+        }));
+        console.log("Trust: ", factors.trust);
+        break;
+      case "ignore":
+        setFactors((prev) => ({
+          ...prev,
+          loving: Math.max(
+            -10,
+            Math.min(10, prev.loving + 1 * adjustmentFactor)
+          ),
+          trust: Math.max(-10, Math.min(10, prev.trust + 1 * adjustmentFactor)),
+          affection: Math.max(
+            -10,
+            Math.min(10, prev.affection + 1 * adjustmentFactor)
+          ),
+        }));
+        console.log("Loving: ", factors.loving);
+        break;
+      case "pss pss":
+        setFactors((prev) => ({
+          ...prev,
+          loving: Math.max(
+            -10,
+            Math.min(10, prev.loving + 1 * adjustmentFactor)
+          ),
+          playful: Math.max(
+            -10,
+            Math.min(10, prev.playful + 1 * adjustmentFactor)
+          ),
+          trust: Math.max(-10, Math.min(10, prev.trust + 1 * adjustmentFactor)),
+          affection: Math.max(
+            -10,
+            Math.min(10, prev.affection + 1 * adjustmentFactor)
+          ),
+        }));
+        console.log("Loving: ", factors.loving);
+        console.log("Trust: ", factors.trust);
+        break;
+      default:
+        break;
     }
-    // Handle other interactions similarly
   };
 
   return [mood, { onInteract }];
