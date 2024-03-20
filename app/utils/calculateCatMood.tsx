@@ -1,15 +1,15 @@
 type CatFactors = {
   loving: number;
   playful: number;
-  trust: number;
-  affection: number;
+  trustR: number;
+  affectionR: number;
 };
 
 export function calculateCatMood(factors: CatFactors): number {
-  const { loving, playful, trust, affection } = factors;
+  const { loving, playful, trustR, affectionR } = factors;
 
   // Calculate the base mood as the average of the factors
-  let baseMood = Math.round((loving + playful + trust + affection) / 4);
+  let baseMood = Math.round((loving + playful + trustR + affectionR) / 4);
 
   // Introduce randomness
   // Determine the chance of a random mood swing. For example, 10% chance.

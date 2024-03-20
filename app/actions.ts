@@ -28,12 +28,42 @@ export async function CreateRelationship(formData: FormData) {
 export async function UpdateRelationship(
   relationshipId: string,
   moodChange: number,
-  catId: string
+  catId: string,
+  initialFactors: {
+    loving: number;
+    playful: number;
+    trustR: number;
+    affectionR: number;
+  }
 ) {
   console.log("Inside UpdateRelationship", relationshipId, moodChange);
 
   // Calculate the distributed change for each field
-  const changePerField = moodChange / 3;
+  let changePerField = moodChange / 3;
+  if (initialFactors.loving + changePerField > 10) {
+    changePerField = 10 - initialFactors.loving;
+  }
+  if (initialFactors.loving + changePerField < -10) {
+    changePerField = -10 + initialFactors.loving;
+  }
+  if (initialFactors.playful + changePerField > 10) {
+    changePerField = 10 - initialFactors.playful;
+  }
+  if (initialFactors.playful + changePerField < -10) {
+    changePerField = -10 + initialFactors.playful;
+  }
+  if (initialFactors.affectionR + changePerField > 10) {
+    changePerField = 10 - initialFactors.affectionR;
+  }
+  if (initialFactors.affectionR + changePerField < -10) {
+    changePerField = -10 + initialFactors.affectionR;
+  }
+  if (initialFactors.trustR + changePerField > 10) {
+    changePerField = 10 - initialFactors.trustR;
+  }
+  if (initialFactors.trustR + changePerField < -10) {
+    changePerField = -10 + initialFactors.trustR;
+  }
 
   // Directly apply the calculated changes to the database
   try {
