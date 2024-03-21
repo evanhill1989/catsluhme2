@@ -85,6 +85,10 @@ export function CatInterface({
     trustR: relationshipTrust,
     affectionR: relationshipAffection,
   };
+  console.log(
+    "initialFactors inside CatInterface right after declaration",
+    initialFactors
+  );
 
   const interactionFrequencies = actionHistory.reduce((acc, action) => {
     const interaction = interactionTypeMapping[action];

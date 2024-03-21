@@ -19,7 +19,7 @@ type CatFactors = {
   affectionR: number;
 };
 
-type initialFactors = {
+type baseFactors = {
   loving: number;
   playful: number;
   trustR: number;
@@ -29,17 +29,35 @@ type initialFactors = {
 // Assuming you add a new parameter for interaction frequencies
 export function useCatMood(
   moodFactors: CatFactors,
-  initialFactors: initialFactors,
-  interactionFrequencies: Record<InteractionType, number>
+  interactionFrequencies: Record<InteractionType, number>,
+  initialFactors: baseFactors
 ): [number, CatMoodActions] {
   const [factors, setFactors] = useState<CatFactors>(moodFactors);
   const [mood, setMood] = useState<number>(0);
 
-  function getPlayAdjustmentFactor() {
+  // ok so the issue is I'm not getting initialFactors below.
+  function getPlayAdjustmentFactor(initialFactors: baseFactors) {
+    console.log(
+      "initialFactors inside getPlayAdjustmentFactor",
+      initialFactors,
+      "initialFactors.playful",
+      initialFactors.playful,
+      "initialFactors.affectionR",
+      initialFactors.affectionR,
+      "initialFactors.loving",
+      initialFactors.loving,
+      "initialFactors.trustR",
+      initialFactors.trustR
+    );
+
     if (initialFactors.playful < 2) return -1;
     if (initialFactors.playful < 4) return 0;
     if (initialFactors.playful < 7) return 0.5;
-    if (initialFactors.playful >= 7) return 1;
+    if (initialFactors.playful >= 7) {
+      return 1;
+    } else {
+      return 1;
+    }
   }
 
   function getBaseAdjustmentFactor(frequency, interaction) {
@@ -93,11 +111,26 @@ export function useCatMood(
     // Example: Fetch the current frequency for this interaction
     const frequency = interactionFrequencies[interaction] || 0;
     const adjustmentFactor = getBaseAdjustmentFactor(frequency, interaction); // Implement this based on your diminishing returns logic
-    const playAdjustmentFactor = getPlayAdjustmentFactor(frequency);
+    const playAdjustmentFactor = getPlayAdjustmentFactor(initialFactors);
     // Adjust mood factors using adjustmentFactor
     // Example: For a 'pet' interaction with diminishing returns
 
     switch (interaction) {
+      case "play":
+        setFactors((prev) => ({
+          ...prev,
+          loving: Math.max(0, Math.min(10, prev.loving + playAdjustmentFactor)),
+          // playful: Math.max(
+          //   0,
+          //   Math.min(10, prev.playful + playAdjustmentFactor)
+          // ),
+          // trustR: Math.max(0, Math.min(10, prev.trustR + playAdjustmentFactor)),
+        }));
+        console.log("Loving: ", factors.loving);
+        console.log("trustR: ", factors.trustR);
+        console.log("AffectionR: ", factors.affectionR);
+        console.log("Playful: ", factors.playful);
+        break;
       case "pet":
         setFactors((prev) => ({
           ...prev,
@@ -133,21 +166,7 @@ export function useCatMood(
         // console.log("AffectionR: ", factors.affectionR);
         // console.log("Playful: ", factors.playful);
         break;
-      case "play":
-        setFactors((prev) => ({
-          ...prev,
-          loving: Math.max(0, Math.min(10, prev.loving + playAdjustmentFactor)),
-          playful: Math.max(
-            0,
-            Math.min(10, prev.playful + playAdjustmentFactor)
-          ),
-          trustR: Math.max(0, Math.min(10, prev.trustR + playAdjustmentFactor)),
-        }));
-        console.log("Loving: ", factors.loving);
-        console.log("trustR: ", factors.trustR);
-        console.log("AffectionR: ", factors.affectionR);
-        console.log("Playful: ", factors.playful);
-        break;
+
       case "hold":
         setFactors((prev) => ({
           ...prev,

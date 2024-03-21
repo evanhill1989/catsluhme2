@@ -36,7 +36,7 @@ export async function UpdateRelationship(
     affectionR: number;
   }
 ) {
-  console.log("Inside UpdateRelationship", relationshipId, moodChange);
+  console.log("Inside UpdateRelationship initialFactors,relationshipId, moodChange", initialFactors, relationshipId, moodChange);
 
   // Calculate the distributed change for each field
   let changePerField = moodChange / 3;
