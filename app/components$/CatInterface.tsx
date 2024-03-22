@@ -130,6 +130,8 @@ export function CatInterface({
     initialFactors
   );
   const [initialMood, setInitialMood] = useState<number>(mood);
+  const [catReaction, setCatReaction] = useState(null);
+  const [actionMessage, setActionMessage] = useState("");
 
   // So can't we just use mood?
 
@@ -138,6 +140,7 @@ export function CatInterface({
   useEffect(() => {
     if (actionHistory.length === 0) {
       setInitialMood(mood);
+      setCatReaction(null);
     } else if (actionHistory.length > 0 && actionHistory.length % 10 === 0) {
       moodChangeRef.current = mood - initialMood;
 
@@ -166,40 +169,48 @@ export function CatInterface({
 
   // Passed as a prop to GameActions , but runs here to update actionHistory
   const handleInteraction = (interaction: InteractionType) => {
+    setCatReaction(null);
     onInteract(interaction);
 
     const actionMessages: Record<InteractionType, string> = {
-      pet: `You petted ${catName}.`,
-      feed: `You gave ${catName} a treat.`,
-      play: `You played with ${catName}.`,
-      "pss pss": `You called ${catName} over.`,
-      hold: `You held ${catName}.`,
-      ignore: `You ignored ${catName}.`,
+      pet: `You petted ${catName}`,
+      feed: `You gave ${catName} a treat`,
+      play: `Attempting to play with ${catName}`,
+      "pss pss": `You called ${catName} over`,
+      hold: `You held ${catName}`,
+      ignore: `You ignored ${catName}`,
     };
-
-    // catReaction algo
-    // get moodChangeRef.current
-    // if negative then pull from negative reaction list
-    // if positive then pull from positive reaction list
 
     const newActionMessage = actionMessages[interaction];
     setActionHistory((prevHistory) => {
-      const updatedHistory = [...prevHistory, newActionMessage];
-      if (updatedHistory.length % 10 === 0) {
-      }
+      const updatedHistory = [...prevHistory, newActionMessage + "."];
       return updatedHistory;
     });
+
+    let periodCount = 1;
+    const intervalId = setInterval(() => {
+      periodCount = periodCount >= 3 ? 1 : periodCount + 1; // Reset or increment period count
+      setActionMessage(`${newActionMessage}${".".repeat(periodCount)}`); // Update action message with dynamic periods
+    }, 500); // Adjust as needed for fluid movement
+
+    setTimeout(() => {
+      clearInterval(intervalId); // Stop the interval when setting the cat's reaction
+      if (moodChangeRef.current < 0) {
+        setCatReaction(
+          playNegativeReactions[
+            Math.floor(Math.random() * playNegativeReactions.length)
+          ]
+        );
+      } else {
+        setCatReaction(
+          playPositiveReactions[
+            Math.floor(Math.random() * playPositiveReactions.length)
+          ]
+        );
+      }
+      setActionMessage(""); // Clear or reset the action message as needed
+    }, 5000); // Assuming this is your desired timeout duration
   };
-
-  function catReaction() {
-    if (moodChangeRef.current < 0) {
-      return playNegativeReactions[Math.floor(Math.random() * 10)];
-    } else {
-      return playPositiveReactions[Math.floor(Math.random() * 10)];
-    }
-  }
-
-  const reaction = catReaction();
 
   function useAutoScrollToBottom(dependencyArray) {
     const containerRef = useRef(null);
@@ -249,13 +260,9 @@ export function CatInterface({
             ref={actionHistoryRef}
             className="actionLog h-16 max-h-16 flex flex-col overflow-y-auto p-2 bg-slate-400 "
           >
-            {actionHistory.map((action, index) => (
-              <p key={index}>{action}</p>
-            ))}
+            {actionMessage}
           </div>
-          <div>
-            <p>{reaction}</p>
-          </div>
+          <div>{catReaction ? <p>{catReaction}</p> : null}</div>
         </CardContent>
       </Card>
 
