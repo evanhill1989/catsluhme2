@@ -75,6 +75,7 @@ export function CatInterface({
     playful: playful,
     trustR: relationshipTrust,
     affectionR: relationshipAffection,
+    //loveR : relationshipLove do we want this as a factor?
   };
   // Here is the useEffect hook that listens for changes in actionHistory
   const [actionHistory, setActionHistory] = useState<string[]>([]);
@@ -84,11 +85,34 @@ export function CatInterface({
     playful: playful,
     trustR: relationshipTrust,
     affectionR: relationshipAffection,
+    loveR: relationshipLove,
   };
-  console.log(
-    "initialFactors inside CatInterface right after declaration",
-    initialFactors
-  );
+
+  const playPositiveReactions = [
+    "Pounces on your laser light.",
+    "Snatches your feather toy out of the air.",
+    "Swipes at your rolling ball.",
+    "Kicks your fabric mouse toy with hind legs.",
+    "Chases your dragged string.",
+    "Plays energetically with your jingling ball.",
+    "Runs through the tunnel chasing your wand toy.",
+    "Catches your fluttering butterfly toy.",
+    "Carries your soft toy around proudly.",
+    "Stops your toy on wheels with a firm paw.",
+  ];
+
+  const playNegativeReactions = [
+    "Ignores your laser light.",
+    "Looks at your feather toy but doesn't engage.",
+    "Watches your ball roll by, uninterested.",
+    "Sniffs your fabric mouse toy and walks away.",
+    "Ignores your string completely.",
+    "Glances at your jingling ball and yawns.",
+    "Stares at the entrance of your play tunnel but doesn't enter.",
+    "Watches your butterfly toy without moving.",
+    "Sees your soft toy but shows no interest.",
+    "Observes your toy on wheels pass by without a reaction.",
+  ];
 
   const interactionFrequencies = actionHistory.reduce((acc, action) => {
     const interaction = interactionTypeMapping[action];
@@ -109,7 +133,7 @@ export function CatInterface({
 
   // So can't we just use mood?
 
-  let moodChangeRef = useRef<number>(initialMood);
+  let moodChangeRef = useRef<number>(0);
 
   useEffect(() => {
     if (actionHistory.length === 0) {
@@ -128,7 +152,8 @@ export function CatInterface({
       moodChangeRef.current = mood - initialMood;
       console.log(
         "Inside CatInterface useEffect ",
-        moodFactors,
+        "moodChange: ",
+        moodChangeRef.current,
         "mood: ",
         mood,
         "initialMood: ",
@@ -152,6 +177,11 @@ export function CatInterface({
       ignore: `You ignored ${catName}.`,
     };
 
+    // catReaction algo
+    // get moodChangeRef.current
+    // if negative then pull from negative reaction list
+    // if positive then pull from positive reaction list
+
     const newActionMessage = actionMessages[interaction];
     setActionHistory((prevHistory) => {
       const updatedHistory = [...prevHistory, newActionMessage];
@@ -160,6 +190,16 @@ export function CatInterface({
       return updatedHistory;
     });
   };
+
+  function catReaction() {
+    if (moodChangeRef.current < 0) {
+      return playNegativeReactions[Math.floor(Math.random() * 10)];
+    } else {
+      return playPositiveReactions[Math.floor(Math.random() * 10)];
+    }
+  }
+
+  const reaction = catReaction();
 
   function useAutoScrollToBottom(dependencyArray) {
     const containerRef = useRef(null);
@@ -212,6 +252,9 @@ export function CatInterface({
             {actionHistory.map((action, index) => (
               <p key={index}>{action}</p>
             ))}
+          </div>
+          <div>
+            <p>{reaction}</p>
           </div>
         </CardContent>
       </Card>

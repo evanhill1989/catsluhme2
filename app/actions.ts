@@ -34,45 +34,57 @@ export async function UpdateRelationship(
     playful: number;
     trustR: number;
     affectionR: number;
+    loveR: number;
   }
 ) {
-  console.log("Inside UpdateRelationship initialFactors,relationshipId, moodChange", initialFactors, relationshipId, moodChange);
+  console.log(
+    "Inside UpdateRelationship initialFactors, relationshipId, moodChange",
+    initialFactors,
+    relationshipId,
+    moodChange
+  );
 
   // Calculate the distributed change for each field
-  let changePerField = moodChange / 3;
-  if (initialFactors.loving + changePerField > 10) {
-    changePerField = 10 - initialFactors.loving;
-  }
-  if (initialFactors.loving + changePerField < -10) {
-    changePerField = -10 + initialFactors.loving;
-  }
-  if (initialFactors.playful + changePerField > 10) {
-    changePerField = 10 - initialFactors.playful;
-  }
-  if (initialFactors.playful + changePerField < -10) {
-    changePerField = -10 + initialFactors.playful;
-  }
-  if (initialFactors.affectionR + changePerField > 10) {
-    changePerField = 10 - initialFactors.affectionR;
-  }
-  if (initialFactors.affectionR + changePerField < -10) {
-    changePerField = -10 + initialFactors.affectionR;
-  }
-  if (initialFactors.trustR + changePerField > 10) {
-    changePerField = 10 - initialFactors.trustR;
-  }
-  if (initialFactors.trustR + changePerField < -10) {
-    changePerField = -10 + initialFactors.trustR;
+  let baseChangePerField = moodChange / 3;
+
+  // Function to adjust change per field ensuring it stays within 0-10 range
+  function adjustChange(currentValue, change) {
+    let adjustedChange = change;
+    if (currentValue + change > 10) {
+      adjustedChange = 10 - currentValue; // Adjust to not exceed 10
+    } else if (currentValue + change < 0) {
+      adjustedChange = -currentValue; // Adjust to not fall below 0
+    }
+    // If currentValue is already at a boundary (0 or 10), prevent any change that would violate the boundary
+    if (
+      (currentValue === 0 && change < 0) ||
+      (currentValue === 10 && change > 0)
+    ) {
+      adjustedChange = 0;
+    }
+    return adjustedChange;
   }
 
+  const newTrust =
+    initialFactors.trustR +
+    adjustChange(initialFactors.trustR, baseChangePerField);
+  const newAffection =
+    initialFactors.affectionR +
+    adjustChange(initialFactors.affectionR, baseChangePerField);
+  const newLove = Math.max(
+    0,
+    Math.min(10, initialFactors.loveR + (newTrust + newAffection) / 2)
+  );
+
   // Directly apply the calculated changes to the database
+  // !!!!! OOOOOPSSS don't udpate "love" from relationship with "loving" from cat.
   try {
     const updatedRelationship = await prisma.relationship.update({
       where: { id: relationshipId },
       data: {
-        love: { increment: changePerField },
-        trust: { increment: changePerField },
-        affection: { increment: changePerField },
+        love: newLove,
+        trust: newTrust,
+        affection: newAffection,
       },
     });
 
