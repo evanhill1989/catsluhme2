@@ -73,6 +73,7 @@ export async function UpdateRelationship(
     adjustChange(initialFactors.affectionR, baseChangePerField);
   const newLove = Math.max(
     0,
+    // account for when newTrust + newAffection both go to 0 and we try divide by 2
     Math.min(10, initialFactors.loveR + (newTrust + newAffection) / 2)
   );
 

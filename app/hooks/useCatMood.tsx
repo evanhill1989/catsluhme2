@@ -25,24 +25,80 @@ type baseFactors = {
   trustR: number;
   affectionR: number;
 };
+// do i really need to map a string to a string?
+const interactionTypeMapping = {
+  "You petted Oscar.": "pet",
+  "You gave Oscar a treat.": "feed",
+  "You played with Oscar.": "play",
+  "You called Oscar over.": "pss pss",
+  "You held Oscar.": "hold",
+  "You ignored Oscar.": "ignore",
+};
 
 // Assuming you add a new parameter for interaction frequencies
 export function useCatMood(
   moodFactors: CatFactors,
-  interactionFrequencies: Record<InteractionType, number>,
-  initialFactors: baseFactors
+  initialFactors: baseFactors,
+  actionHistory: InteractionType[]
 ): [number, CatMoodActions] {
   const [factors, setFactors] = useState<CatFactors>(moodFactors);
   const [mood, setMood] = useState<number>(0);
+  // console.log(
+  //   "@@@@@actionHistory and actionHistory.length: ",
+  //   actionHistory,
+  //   actionHistory.length
+  // );
+
+  const interactionFrequencies = actionHistory.reduce((acc, action) => {
+    const interaction = action;
+    if (interaction) {
+      acc[interaction] = (acc[interaction] || 0) + 1;
+    }
+    return acc;
+  }, {});
+  console.log(
+    "interactionFrequencies at top of useCatMood",
+    interactionFrequencies
+  );
 
   // ok so the issue is I'm not getting initialFactors below.
   function getPlayAdjustmentFactor(
     initialFactors: baseFactors,
     frequency: number
   ) {
-    if (initialFactors.playful < 2 && frequency == 1) {
+    // (logic exp. for 1st if)if cat's basic playful <2 and this is the first "play" action and it wasn't preceeded by pss pss
+    if (
+      initialFactors.playful < 2 &&
+      frequency == 1 &&
+      actionHistory[0] !== "pss pss"
+    ) {
+      console.log(
+        "*****Frequence Inside 1st if from getPlayAdjustmentFactor useCatMood",
+        frequency
+      );
       return -0.1;
-    } else if (initialFactors.playful < 2 && frequency >= 2) return -1;
+    } else if (
+      initialFactors.playful < 2 &&
+      frequency >= 2 &&
+      actionHistory[0] !== "pss pss"
+    ) {
+      console.log(
+        "*****Inside else if from getPlayAdjustmentFactor useCatMood"
+      );
+      return -1;
+    } else if (
+      initialFactors.playful < 2 &&
+      frequency == 1 &&
+      actionHistory[0] === "pss pss"
+    ) {
+      return 0.2;
+    } else if (
+      initialFactors.playful < 2 &&
+      frequency >= 2 &&
+      actionHistory[0] === "pss pss"
+    ) {
+      return 0.1;
+    }
     if (initialFactors.playful < 4) return 0;
     if (initialFactors.playful < 7) return 0.5;
     if (initialFactors.playful >= 7) {
@@ -89,7 +145,6 @@ export function useCatMood(
   }
 
   useEffect(() => {
-    console.log("factors inside useEffect in useCatMood: ", factors);
     const newMood = calculateCatMood(factors);
     setMood(newMood);
   }, [factors]);
@@ -98,12 +153,19 @@ export function useCatMood(
   // and update the mood.
   // ***** VITAL LOGIC HERE at Heart of mood changes *****
   // Below this is where we update the factors based on the user interaction
-
-  const onInteract = (interaction: InteractionType) => {
+ // interactionFrequencies at top of useCatMood {Attempting to play with Oscar: 2, You petted Oscar: 1}
+  const onInteract = (interaction) => {
     // Now consider interactionFrequencies to adjust the impact
     // Example: Fetch the current frequency for this interaction
-    const frequency = interactionFrequencies[interaction] + 1 || 1;
-    console.log("frequency: ", frequency, "interaction: ", interaction);
+    const frequency = interactionFrequencies ? ;
+    console.log(
+      // "!!!!!interactionFrequencies: ",
+      // interactionFrequencies,
+      "frequency at top of onInteract: ",
+      frequency,
+      "interaction: ",
+      interaction
+    );
     const adjustmentFactor = getBaseAdjustmentFactor(frequency, interaction); // Implement this based on your diminishing returns logic
     const playAdjustmentFactor = getPlayAdjustmentFactor(
       initialFactors,
@@ -142,10 +204,7 @@ export function useCatMood(
             Math.min(10, prev.affectionR + 1 * adjustmentFactor)
           ),
         }));
-        // console.log("Loving: ", factors.loving);
-        // console.log("trustR: ", factors.trustR);
-        // console.log("AffectionR: ", factors.affectionR);
-        // console.log("Playful: ", factors.playful);
+
         break;
       case "feed":
         setFactors((prev) => ({
@@ -158,10 +217,7 @@ export function useCatMood(
             Math.min(10, prev.affectionR + 1 * adjustmentFactor)
           ),
         }));
-        // console.log("Loving: ", factors.loving);
-        // console.log("trustR: ", factors.trustR);
-        // console.log("AffectionR: ", factors.affectionR);
-        // console.log("Playful: ", factors.playful);
+
         break;
 
       case "hold":
@@ -178,10 +234,7 @@ export function useCatMood(
             Math.min(10, prev.affectionR + 1 * adjustmentFactor)
           ),
         }));
-        // console.log("Loving: ", factors.loving);
-        // console.log("trustR: ", factors.trustR);
-        // console.log("AffectionR: ", factors.affectionR);
-        // console.log("Playful: ", factors.playful);
+
         break;
       case "ignore":
         setFactors((prev) => ({
@@ -193,10 +246,7 @@ export function useCatMood(
             Math.min(10, prev.affectionR + 1 * adjustmentFactor)
           ),
         }));
-        // console.log("Loving: ", factors.loving);
-        // console.log("trustR: ", factors.trustR);
-        // console.log("AffectionR: ", factors.affectionR);
-        // console.log("Playful: ", factors.playful);
+
         break;
       case "pss pss":
         setFactors((prev) => ({
@@ -212,10 +262,6 @@ export function useCatMood(
             Math.min(10, prev.affectionR + 1 * adjustmentFactor)
           ),
         }));
-        // console.log("Loving: ", factors.loving);
-        // console.log("trustR: ", factors.trustR);
-        // console.log("AffectionR: ", factors.affectionR);
-        // console.log("Playful: ", factors.playful);
 
         break;
       default:

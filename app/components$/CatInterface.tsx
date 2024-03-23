@@ -40,18 +40,10 @@ interface iAppProps {
   relationshipAffection: number;
 }
 
+type InteractionType = "pet" | "feed" | "play" | "hold" | "ignore" | "pss pss";
 // tooltip
 
 let interactionImpactScore = 0; // Initialize outside of your component if it should persist across renders without resetting.
-
-const interactionTypeMapping = {
-  "You petted Oscar.": "pet",
-  "You gave Oscar a treat.": "feed",
-  "You played with Oscar.": "play",
-  "You called Oscar over.": "pss pss",
-  "You held Oscar.": "hold",
-  "You ignored Oscar.": "ignore",
-};
 
 export function CatInterface({
   imagePath,
@@ -78,7 +70,7 @@ export function CatInterface({
     //loveR : relationshipLove do we want this as a factor?
   };
   // Here is the useEffect hook that listens for changes in actionHistory
-  const [actionHistory, setActionHistory] = useState<string[]>([]);
+  const [actionHistory, setActionHistory] = useState<InteractionType[]>([]);
 
   const initialFactors = {
     loving: catLoving,
@@ -114,20 +106,12 @@ export function CatInterface({
     "Observes your toy on wheels pass by without a reaction.",
   ];
 
-  const interactionFrequencies = actionHistory.reduce((acc, action) => {
-    const interaction = interactionTypeMapping[action];
-    if (interaction) {
-      acc[interaction] = (acc[interaction] || 0) + 1;
-    }
-    return acc;
-  }, {});
-
   // One thing I'm not seeing is how we get updated moodFactors back
 
   const [mood, { onInteract }] = useCatMood(
     moodFactors,
-    interactionFrequencies,
-    initialFactors
+    initialFactors,
+    actionHistory
   );
   const [initialMood, setInitialMood] = useState<number>(mood);
   const [catReaction, setCatReaction] = useState(null);
@@ -136,6 +120,7 @@ export function CatInterface({
   // So can't we just use mood?
 
   let moodChangeRef = useRef<number>(0);
+  console.log("!!!!!!!!!!!!actionHistory in CatInterface: ", actionHistory);
 
   useEffect(() => {
     if (actionHistory.length === 0) {
@@ -153,15 +138,6 @@ export function CatInterface({
       );
     } else {
       moodChangeRef.current = mood - initialMood;
-      console.log(
-        "Inside CatInterface useEffect ",
-        "moodChange: ",
-        moodChangeRef.current,
-        "mood: ",
-        mood,
-        "initialMood: ",
-        initialMood
-      );
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -183,33 +159,34 @@ export function CatInterface({
 
     const newActionMessage = actionMessages[interaction];
     setActionHistory((prevHistory) => {
-      const updatedHistory = [...prevHistory, newActionMessage + "."];
+      const updatedHistory = [...prevHistory, newActionMessage];
       return updatedHistory;
     });
 
-    let periodCount = 1;
-    const intervalId = setInterval(() => {
-      periodCount = periodCount >= 3 ? 1 : periodCount + 1; // Reset or increment period count
-      setActionMessage(`${newActionMessage}${".".repeat(periodCount)}`); // Update action message with dynamic periods
-    }, 500); // Adjust as needed for fluid movement
+    // let periodCount = 1;
+    // const intervalId = setInterval(() => {
+    //   periodCount = periodCount >= 3 ? 1 : periodCount + 1; // Reset or increment period count
+    //   setActionMessage(`${newActionMessage}${".".repeat(periodCount)}`); // Update action message with dynamic periods
+    // }, 500); // Adjust as needed for fluid movement
 
-    setTimeout(() => {
-      clearInterval(intervalId); // Stop the interval when setting the cat's reaction
-      if (moodChangeRef.current < 0) {
-        setCatReaction(
-          playNegativeReactions[
-            Math.floor(Math.random() * playNegativeReactions.length)
-          ]
-        );
-      } else {
-        setCatReaction(
-          playPositiveReactions[
-            Math.floor(Math.random() * playPositiveReactions.length)
-          ]
-        );
-      }
-      setActionMessage(""); // Clear or reset the action message as needed
-    }, 5000); // Assuming this is your desired timeout duration
+    // setTimeout(() => {
+    //   clearInterval(intervalId); // Stop the interval when setting the cat's reaction
+    //   if (moodChangeRef.current < 0) {
+    //     setCatReaction(
+    //       playNegativeReactions[
+    //         Math.floor(Math.random() * playNegativeReactions.length)
+    //       ]
+    //     );
+    //   } else {
+    //     setCatReaction(
+    //       playPositiveReactions[
+    //         Math.floor(Math.random() * playPositiveReactions.length)
+    //       ]
+    //     );
+    //   }
+    //   //setActionMessage(""); // Clear or reset the action message as needed
+    // }, 5000); // Assuming this is your desired timeout duration
+    // console.log("@@@@actionHistory after setTimeout in CI ", actionHistory);
   };
 
   function useAutoScrollToBottom(dependencyArray) {
