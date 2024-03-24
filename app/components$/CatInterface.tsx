@@ -121,7 +121,7 @@ export function CatInterface({
   // So can't we just use mood?
 
   let moodChangeRef = useRef<number>(0);
-  console.log("!!!!!!!!!!!!actionHistory in CatInterface: ", actionHistory);
+  // console.log("!!!!!!!!!!!!actionHistory in CatInterface: ", actionHistory);
 
   useEffect(() => {
     if (actionHistory.length === 0) {

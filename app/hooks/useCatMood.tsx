@@ -53,13 +53,13 @@ export function useCatMood(
   //   }
   // });
 
-  const interactionFrequencies = actionHistory.reduce((acc, action) => {
-    const interaction = action;
-    if (interaction) {
-      acc[interaction] = (acc[interaction] || 0) + 1;
-    }
-    return acc;
-  }, {});
+  // const interactionFrequencies = actionHistory.reduce((acc, action) => {
+  //   const interaction = action;
+  //   if (interaction) {
+  //     acc[interaction] = (acc[interaction] || 0) + 1;
+  //   }
+  //   return acc;
+  // }, {});
 
   // using Map because we want to track initial action, and Map may be easier to work with for other things
   const actionFrequencies = new Map();
@@ -75,49 +75,42 @@ export function useCatMood(
   // To access the first action and its frequency:
   const firstActionEntry = actionFrequencies.entries().next().value;
   const firstAction = firstActionEntry ? firstActionEntry[0] : null;
-  console.log("firstAction: ", firstAction); // This will log "feed" if it's the first action
+  // console.log("firstAction: ", firstAction); // This will log "feed" if it's the first action
 
   // To iterate over actions in order with their frequencies:
   actionFrequencies.forEach((count, action) => {
-    console.log(`actionFrequencies mapped out ${action}: ${count}`);
+    // console.log(`actionFrequencies mapped out ${action}: ${count}`);
   });
-
-  console.log(
-    "actionFrequencies at top of useCatMood: ",
-    actionFrequencies,
-
-    "interactionFrequencies at top of useCatMood",
-    interactionFrequencies
-  );
 
   // ok so the issue is I'm not getting initialFactors below.
   function getPlayAdjustmentFactor(
     initialFactors: baseFactors,
-    frequency: number
+    frequency: number,
+    firstAction: string
   ) {
     // (logic exp. for 1st if)if cat's basic playful <2 and this is the first "play" action and it wasn't preceeded by pss pss
     if (
       initialFactors.playful < 2 &&
       frequency == 1 &&
-      firstActionEntry !== "pss pss"
+      firstAction !== "pss pss"
     ) {
       return -0.1;
     } else if (
       initialFactors.playful < 2 &&
       frequency >= 2 &&
-      firstActionEntry !== "pss pss"
+      firstAction !== "pss pss"
     ) {
       return -1;
     } else if (
       initialFactors.playful < 2 &&
       frequency == 1 &&
-      firstActionEntry === "pss pss"
+      firstAction === "pss pss"
     ) {
       return 0.2;
     } else if (
       initialFactors.playful < 2 &&
       frequency >= 2 &&
-      firstActionEntry === "pss pss"
+      firstAction === "pss pss"
     ) {
       return 0.1;
     }
@@ -130,8 +123,12 @@ export function useCatMood(
     }
   }
 
-  function getBaseAdjustmentFactor(frequency, interaction) {
+  function getBaseAdjustmentFactor(frequency: number, interaction) {
     // Example logic for diminishing returns
+    // console.log(
+    //   "@@@@@@@@frequency inside getBaseAdjustmentFactor: ",
+    //   frequency
+    // );
     switch (interaction) {
       case "pet":
         if (frequency <= 3) return 1; // Full effect
@@ -176,31 +173,38 @@ export function useCatMood(
   // ***** VITAL LOGIC HERE at Heart of mood changes *****
   // Below this is where we update the factors based on the user interaction
   // interactionFrequencies at top of useCatMood {Attempting to play with Oscar: 2, You petted Oscar: 1}
+
   const onInteract = (interaction) => {
     // Now consider interactionFrequencies to adjust the impact
     // Example: Fetch the current frequency for this interaction
     // current interactionFrequency format {Attempting to play with Oscar: 2}
 
+    // console.log(`@@@@inside onInteract: ${interaction}`);
     setActionLog((prevActionLog) => {
       const updatedActionLog = [...prevActionLog, interaction];
       return updatedActionLog;
     });
 
-    const frequency = interactionFrequencies[interaction] || 0;
+    // const frequency = interactionFrequencies[interaction] || 0;
+    // Below is better than above, but only problem is it's 1 behind...
 
-    console.log(
-      // "!!!!!interactionFrequencies: ",
-      // interactionFrequencies,
-      "frequency at top of onInteract: ",
-      frequency,
-      "interaction: ",
-      interaction
-    );
+    const frequency = (actionFrequencies.get(interaction) || 0) + 1;
+
+    // console.log(
+    //   // "!!!!!interactionFrequencies: ",
+    //   // interactionFrequencies,
+    //   "@@@@@@@@@@frequency at top of onInteract: ",
+    //   frequency,
+    //   "interaction: ",
+    //   interaction
+    // );
     const adjustmentFactor = getBaseAdjustmentFactor(frequency, interaction); // Implement this based on your diminishing returns logic
     const playAdjustmentFactor = getPlayAdjustmentFactor(
       initialFactors,
-      frequency
+      frequency,
+      firstAction
     );
+
     // Adjust mood factors using adjustmentFactor
     // Example: For a 'pet' interaction with diminishing returns
 
