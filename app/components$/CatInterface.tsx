@@ -111,7 +111,8 @@ export function CatInterface({
   const [mood, { onInteract }] = useCatMood(
     moodFactors,
     initialFactors,
-    actionHistory
+    actionHistory,
+    catName
   );
   const [initialMood, setInitialMood] = useState<number>(mood);
   const [catReaction, setCatReaction] = useState(null);
@@ -146,7 +147,7 @@ export function CatInterface({
   // Passed as a prop to GameActions , but runs here to update actionHistory
   const handleInteraction = (interaction: InteractionType) => {
     setCatReaction(null);
-    onInteract(interaction);
+    onInteract(interaction); // sends interaction to useCatMood "pet" "feed" "play" etc
 
     const actionMessages: Record<InteractionType, string> = {
       pet: `You petted ${catName}`,
@@ -188,6 +189,13 @@ export function CatInterface({
     // }, 5000); // Assuming this is your desired timeout duration
     // console.log("@@@@actionHistory after setTimeout in CI ", actionHistory);
   };
+
+  console.log(
+    "mood in CI: ",
+    mood,
+    "moodChangeRef.current: ",
+    moodChangeRef.current
+  );
 
   function useAutoScrollToBottom(dependencyArray) {
     const containerRef = useRef(null);

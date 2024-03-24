@@ -26,28 +26,32 @@ type baseFactors = {
   affectionR: number;
 };
 // do i really need to map a string to a string?
-const interactionTypeMapping = {
-  "You petted Oscar.": "pet",
-  "You gave Oscar a treat.": "feed",
-  "You played with Oscar.": "play",
-  "You called Oscar over.": "pss pss",
-  "You held Oscar.": "hold",
-  "You ignored Oscar.": "ignore",
-};
+// also this only maps oscar?
+// const interactionTypeMapping = {
+//   "You petted Oscar.": "pet",
+//   "You gave Oscar a treat.": "feed",
+//   "You played with Oscar.": "play",
+//   "You called Oscar over.": "pss pss",
+//   "You held Oscar.": "hold",
+//   "You ignored Oscar.": "ignore",
+// };
 
 // Assuming you add a new parameter for interaction frequencies
 export function useCatMood(
   moodFactors: CatFactors,
   initialFactors: baseFactors,
-  actionHistory: InteractionType[]
+  actionHistory: InteractionType[],
+  catName: string
 ): [number, CatMoodActions] {
   const [factors, setFactors] = useState<CatFactors>(moodFactors);
   const [mood, setMood] = useState<number>(0);
-  // console.log(
-  //   "@@@@@actionHistory and actionHistory.length: ",
-  //   actionHistory,
-  //   actionHistory.length
-  // );
+  const [actionLog, setActionLog] = useState<InteractionType[]>([]);
+
+  // const actionHistoryConverted = actionHistory.map((action) => {
+  //   if (action contains "pss pss") {
+
+  //   }
+  // });
 
   const interactionFrequencies = actionHistory.reduce((acc, action) => {
     const interaction = action;
@@ -56,7 +60,32 @@ export function useCatMood(
     }
     return acc;
   }, {});
+
+  // using Map because we want to track initial action, and Map may be easier to work with for other things
+  const actionFrequencies = new Map();
+
+  actionLog.forEach((action) => {
+    if (actionFrequencies.has(action)) {
+      actionFrequencies.set(action, actionFrequencies.get(action) + 1);
+    } else {
+      actionFrequencies.set(action, 1);
+    }
+  });
+
+  // To access the first action and its frequency:
+  const firstActionEntry = actionFrequencies.entries().next().value;
+  const firstAction = firstActionEntry ? firstActionEntry[0] : null;
+  console.log("firstAction: ", firstAction); // This will log "feed" if it's the first action
+
+  // To iterate over actions in order with their frequencies:
+  actionFrequencies.forEach((count, action) => {
+    console.log(`actionFrequencies mapped out ${action}: ${count}`);
+  });
+
   console.log(
+    "actionFrequencies at top of useCatMood: ",
+    actionFrequencies,
+
     "interactionFrequencies at top of useCatMood",
     interactionFrequencies
   );
@@ -70,32 +99,25 @@ export function useCatMood(
     if (
       initialFactors.playful < 2 &&
       frequency == 1 &&
-      actionHistory[0] !== "pss pss"
+      firstActionEntry !== "pss pss"
     ) {
-      console.log(
-        "*****Frequence Inside 1st if from getPlayAdjustmentFactor useCatMood",
-        frequency
-      );
       return -0.1;
     } else if (
       initialFactors.playful < 2 &&
       frequency >= 2 &&
-      actionHistory[0] !== "pss pss"
+      firstActionEntry !== "pss pss"
     ) {
-      console.log(
-        "*****Inside else if from getPlayAdjustmentFactor useCatMood"
-      );
       return -1;
     } else if (
       initialFactors.playful < 2 &&
       frequency == 1 &&
-      actionHistory[0] === "pss pss"
+      firstActionEntry === "pss pss"
     ) {
       return 0.2;
     } else if (
       initialFactors.playful < 2 &&
       frequency >= 2 &&
-      actionHistory[0] === "pss pss"
+      firstActionEntry === "pss pss"
     ) {
       return 0.1;
     }
@@ -153,11 +175,19 @@ export function useCatMood(
   // and update the mood.
   // ***** VITAL LOGIC HERE at Heart of mood changes *****
   // Below this is where we update the factors based on the user interaction
- // interactionFrequencies at top of useCatMood {Attempting to play with Oscar: 2, You petted Oscar: 1}
+  // interactionFrequencies at top of useCatMood {Attempting to play with Oscar: 2, You petted Oscar: 1}
   const onInteract = (interaction) => {
     // Now consider interactionFrequencies to adjust the impact
     // Example: Fetch the current frequency for this interaction
-    const frequency = interactionFrequencies ? ;
+    // current interactionFrequency format {Attempting to play with Oscar: 2}
+
+    setActionLog((prevActionLog) => {
+      const updatedActionLog = [...prevActionLog, interaction];
+      return updatedActionLog;
+    });
+
+    const frequency = interactionFrequencies[interaction] || 0;
+
     console.log(
       // "!!!!!interactionFrequencies: ",
       // interactionFrequencies,
