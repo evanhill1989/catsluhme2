@@ -150,6 +150,7 @@ async function ShowInterface({ params }: { params: { id: string } }) {
           pathName="/"
           userGivenName={user?.given_name}
           catName={cat?.name}
+          extrovert={cat?.extrovert}
         />
       </>
     );

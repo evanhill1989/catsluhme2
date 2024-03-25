@@ -38,6 +38,7 @@ interface iAppProps {
   playful: number;
   catLoving: number;
   relationshipAffection: number;
+  extrovert: boolean;
 }
 
 type InteractionType = "pet" | "feed" | "play" | "hold" | "ignore" | "pss pss";
@@ -59,6 +60,7 @@ export function CatInterface({
   catLoving,
   duration,
   playful,
+  extrovert,
 }: iAppProps) {
   // Inline style for the pizza slice effect
 
@@ -75,6 +77,7 @@ export function CatInterface({
   const initialFactors = {
     loving: catLoving,
     playful: playful,
+    extrovert: extrovert,
     trustR: relationshipTrust,
     affectionR: relationshipAffection,
     loveR: relationshipLove,
@@ -112,7 +115,8 @@ export function CatInterface({
     moodFactors,
     initialFactors,
     actionHistory,
-    catName
+    catName,
+    extrovert
   );
   const [initialMood, setInitialMood] = useState<number>(mood);
   const [catReaction, setCatReaction] = useState(null);
@@ -121,7 +125,6 @@ export function CatInterface({
   // So can't we just use mood?
 
   let moodChangeRef = useRef<number>(0);
-  // console.log("!!!!!!!!!!!!actionHistory in CatInterface: ", actionHistory);
 
   useEffect(() => {
     if (actionHistory.length === 0) {
@@ -190,12 +193,12 @@ export function CatInterface({
     // console.log("@@@@actionHistory after setTimeout in CI ", actionHistory);
   };
 
-  console.log(
-    "mood in CI: ",
-    mood,
-    "moodChangeRef.current: ",
-    moodChangeRef.current
-  );
+  // console.log(
+  //   "mood in CI: ",
+  //   mood,
+  //   "moodChangeRef.current: ",
+  //   moodChangeRef.current
+  // );
 
   function useAutoScrollToBottom(dependencyArray) {
     const containerRef = useRef(null);

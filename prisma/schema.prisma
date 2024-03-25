@@ -31,6 +31,8 @@ model Cat {
   landmarkY        String?
   loving      Int?
   playful     Int?
+  extrovert Boolean?
+
   Relationship     Relationship[]
 }
 
