@@ -32,6 +32,17 @@ interface adjustmentFactors {
   firstAction: string;
 }
 
+interface interactionOrderAdjustmentFactors {
+  initialFactors: {
+    playful: number;
+    extrovert: boolean;
+    loveR: number;
+    loving: number;
+  };
+
+  firstAction: string;
+  interaction: InteractionType;
+}
 type CatFactors = {
   loving: number;
   playful: number;
@@ -47,16 +58,6 @@ type baseFactors = {
   affectionR: number;
   loveR: number;
 };
-// do i really need to map a string to a string?
-// also this only maps oscar?
-// const interactionTypeMapping = {
-//   "You petted Oscar.": "pet",
-//   "You gave Oscar a treat.": "feed",
-//   "You played with Oscar.": "play",
-//   "You called Oscar over.": "pss pss",
-//   "You held Oscar.": "hold",
-//   "You ignored Oscar.": "ignore",
-// };
 
 // Assuming you add a new parameter for interaction frequencies
 export function useCatMood(
@@ -69,7 +70,9 @@ export function useCatMood(
   const [mood, setMood] = useState<number>(0);
   const [actionLog, setActionLog] = useState<InteractionType[]>([]);
 
+  // wait what? factors only include catFactors?
   useEffect(() => {
+    console.log("@@@@Am I running the useEffect reliant on factors here?");
     const newMood = calculateCatMood(factors);
     setMood(newMood);
   }, [factors]);
@@ -101,7 +104,33 @@ export function useCatMood(
     "pss pss": "pss_pss",
   };
 
-
+  function interactionOrderAdjustment({
+    interaction,
+    initialFactors,
+    firstAction,
+  }: interactionOrderAdjustmentFactors) {
+    // Placeholder values for now
+    switch (interaction) {
+      case "pet":
+        console.log(
+          "  initialFactors.playful",
+          initialFactors.playful,
+          " firstAction",
+          firstAction
+        );
+        return 0;
+      case "feed":
+        return 1;
+      case "play":
+        return 2;
+      case "hold":
+        return 3;
+      case "ignore":
+        return 4;
+      case "pss pss":
+        return 5;
+    }
+  }
 
   function getAdjustment({
     interaction,
@@ -109,7 +138,6 @@ export function useCatMood(
     frequency,
     firstAction,
   }: adjustmentFactors): number {
-
     function getKey(factor: number) {
       if (factor <= 3) return "low";
       if (factor <= 6) return "medium";
@@ -123,39 +151,29 @@ export function useCatMood(
     const playfulnessKey = initialFactors.playful <= 3 ? "low" : "high";
     const lovingKey = initialFactors.loving <= 3 ? "low" : "high";
 
-    const key = `${firstActionKey}_${playfulnessKey}_${lovingKey}_${extrovertKey}_${relationshipLoveKey}_${frequencyKey}`;
+    const key = `${playfulnessKey}_${lovingKey}_${extrovertKey}_${relationshipLoveKey}_${frequencyKey}`;
 
     console.log("actionLog", actionLog);
     console.log("actionFrequencies", actionFrequencies);
     console.log("firstAction ", firstAction);
     console.log("key", key);
 
-    
-
+    // below we pass the matching key decision table for the current interaction case
     switch (interaction) {
       case "pet":
-        console.log(petAdjustments[key]);
         return petAdjustments[key] || 0;
       case "feed":
-        console.log(feedAdjustments[key]);
         return feedAdjustments[key] || 0;
       case "play":
-        console.log(playAdjustments[key]);
         return playAdjustments[key] || 0;
       case "hold":
-        console.log(holdAdjustments[key]);
         return holdAdjustments[key] || 0;
       case "ignore":
-        console.log(ignoreAdjustments[key]);
         return ignoreAdjustments[key] || 0;
       case "pss pss":
-        console.log(pssPssAdjustments[key]);
         return pssPssAdjustments[key] || 0;
     }
   }
-
-
-
 
   // ***** VITAL LOGIC HERE at Heart of mood changes *****
 
@@ -166,11 +184,6 @@ export function useCatMood(
       const updatedActionLog = [...prevActionLog, interaction];
       return updatedActionLog;
     });
-
-    function interactionOrderAdjustment(interaction : InteractionType) {
-      switch (interaction) {
-        
-    }
 
     const trueFirstAction = firstAction ? firstAction : interaction;
 
@@ -189,23 +202,48 @@ export function useCatMood(
       firstAction: trueFirstAction,
     });
 
-    const interactionOrderAdjustmentFactor = interactionOrderAdjustment(interaction);
+    console.log("adjustmentFactor in onInteract:", adjustmentFactor);
 
+    const interactionOrderAdjustmentFactor = interactionOrderAdjustment({
+      interaction: interaction,
+      initialFactors: {
+        playful: initialFactors.playful,
+        extrovert: initialFactors.extrovert,
+        loving: initialFactors.loving,
+        loveR: initialFactors.loveR,
+      },
+      firstAction: trueFirstAction,
+    });
+
+    console.log(
+      "interactionOrderAdjustmentFactor in onInteract:",
+      interactionOrderAdjustmentFactor
+    );
     // Adjust mood factors using adjustmentFactor
     // Example: For a 'pet' interaction with diminishing returns
+
+    // pulling out loving and playful adjustments.
 
     switch (interaction) {
       case "play":
         setFactors((prev) => ({
           ...prev,
-          loving: Math.max(0, Math.min(10, prev.loving + adjustmentFactor + interactionOrderAdjustmentFactor)),
-          playful: Math.max(
-            0,
-            Math.min(10, prev.playful + adjustmentFactor * 0.1)
-          ),
+
           trustR: Math.max(
             0,
-            Math.min(10, prev.trustR + adjustmentFactor * 0.2)
+            Math.min(
+              10,
+              prev.trustR + adjustmentFactor + interactionOrderAdjustmentFactor
+            )
+          ),
+          affectionR: Math.max(
+            0,
+            Math.min(
+              10,
+              prev.affectionR +
+                adjustmentFactor +
+                interactionOrderAdjustmentFactor
+            )
           ),
         }));
 
@@ -213,15 +251,11 @@ export function useCatMood(
       case "pet":
         setFactors((prev) => ({
           ...prev,
-          loving: Math.max(0, Math.min(10, prev.loving + 1 * adjustmentFactor)),
-          playful: Math.max(
-            0,
-            Math.min(10, prev.playful + 1 * adjustmentFactor)
-          ),
-          trustR: Math.max(0, Math.min(10, prev.trustR + 1 * adjustmentFactor)),
+
+          trustR: Math.max(0, Math.min(10, prev.trustR + adjustmentFactor + 4)),
           affectionR: Math.max(
             0,
-            Math.min(10, prev.affectionR + 1 * adjustmentFactor)
+            Math.min(10, prev.affectionR + adjustmentFactor)
           ),
         }));
 
@@ -229,12 +263,22 @@ export function useCatMood(
       case "feed":
         setFactors((prev) => ({
           ...prev,
-          loving: Math.max(0, Math.min(10, prev.loving + 1 * adjustmentFactor)),
 
-          trustR: Math.max(0, Math.min(10, prev.trustR + 1 * adjustmentFactor)),
+          trustR: Math.max(
+            0,
+            Math.min(
+              10,
+              prev.trustR + adjustmentFactor + interactionOrderAdjustmentFactor
+            )
+          ),
           affectionR: Math.max(
             0,
-            Math.min(10, prev.affectionR + 1 * adjustmentFactor)
+            Math.min(
+              10,
+              prev.affectionR +
+                adjustmentFactor +
+                interactionOrderAdjustmentFactor
+            )
           ),
         }));
 
@@ -243,15 +287,22 @@ export function useCatMood(
       case "hold":
         setFactors((prev) => ({
           ...prev,
-          loving: Math.max(0, Math.min(10, prev.loving + 1 * adjustmentFactor)),
-          playful: Math.max(
+
+          trustR: Math.max(
             0,
-            Math.min(10, prev.playful + 1 * adjustmentFactor)
+            Math.min(
+              10,
+              prev.trustR + adjustmentFactor + interactionOrderAdjustmentFactor
+            )
           ),
-          trustR: Math.max(0, Math.min(10, prev.trustR + 1 * adjustmentFactor)),
           affectionR: Math.max(
             0,
-            Math.min(10, prev.affectionR + 1 * adjustmentFactor)
+            Math.min(
+              10,
+              prev.affectionR +
+                adjustmentFactor +
+                interactionOrderAdjustmentFactor
+            )
           ),
         }));
 
@@ -259,27 +310,46 @@ export function useCatMood(
       case "ignore":
         setFactors((prev) => ({
           ...prev,
-          loving: Math.max(0, Math.min(10, prev.loving + 1 * adjustmentFactor)),
-          // trustR: Math.max(0, Math.min(10, prev.trustR + 1 * adjustmentFactor)),
-          // affectionR: Math.max(
-          //   0,
-          //   Math.min(10, prev.affectionR + 1 * adjustmentFactor)
-          // ),
+          // ingore isn't so much about immediate gratification as it is about building trust.
+
+          trustR: Math.max(
+            0,
+            Math.min(
+              10,
+              prev.trustR + adjustmentFactor + interactionOrderAdjustmentFactor
+            )
+          ),
+          affectionR: Math.max(
+            0,
+            Math.min(
+              10,
+              prev.affectionR +
+                adjustmentFactor +
+                interactionOrderAdjustmentFactor
+            )
+          ),
         }));
 
         break;
       case "pss pss":
         setFactors((prev) => ({
           ...prev,
-          loving: Math.max(0, Math.min(10, prev.loving + 1 * adjustmentFactor)),
-          playful: Math.max(
+
+          trustR: Math.max(
             0,
-            Math.min(10, prev.playful + 1 * adjustmentFactor)
+            Math.min(
+              10,
+              prev.trustR + adjustmentFactor + interactionOrderAdjustmentFactor
+            )
           ),
-          trustR: Math.max(0, Math.min(10, prev.trustR + 1 * adjustmentFactor)),
           affectionR: Math.max(
             0,
-            Math.min(10, prev.affectionR + 1 * adjustmentFactor)
+            Math.min(
+              10,
+              prev.affectionR +
+                adjustmentFactor +
+                interactionOrderAdjustmentFactor
+            )
           ),
         }));
 

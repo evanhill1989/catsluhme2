@@ -226,7 +226,7 @@ export function CatInterface({
         <CardContent className="text-sm">
           <p>Mood</p>
           <Progress className="mood" value={mood * 10} />
-
+          <h2>{mood}</h2>
           <div className="flex">
             <SlEnergy />
             <Progress className="energy" value={33} />
