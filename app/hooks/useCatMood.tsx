@@ -59,25 +59,32 @@ type baseFactors = {
   loveR: number;
 };
 
-// Assuming you add a new parameter for interaction frequencies
+console.log("Running outside useCatMood at top"); // on initial page load this runs 1 time
+
 export function useCatMood(
   moodFactors: CatFactors,
-  initialFactors: baseFactors,
-  actionHistory: InteractionType[],
-  catName: string
-): [number, CatMoodActions] {
+  initialFactors: baseFactors
+): [number, number, CatMoodActions] {
   const [factors, setFactors] = useState<CatFactors>(moodFactors);
   const [mood, setMood] = useState<number>(0);
   const [actionLog, setActionLog] = useState<InteractionType[]>([]);
-
-  // wait what? factors only include catFactors?
+  const [finalAdjustmentFactor, setFinalAdjustmentFactor] = useState<number>(0); // Added state for finalAdjustmentFactor
+  console.log(
+    "running right before the useEffect that has const newMood = calculateCatMood(factors)"
+  ); //on initial page load this runs twice in a row before useEffect then runs twice in a row, and then runs 4 more times after useEffect
   useEffect(() => {
-    console.log("@@@@Am I running the useEffect reliant on factors here?");
     const newMood = calculateCatMood(factors);
     setMood(newMood);
+    console.log(
+      "Running at the bottom of the useEffect that has const newMood = calculateCatMood(factors)"
+      // on initial page load this interestingly this runs twice in a row after both of the logs surrounding it run twice.
+      // then the other 2 LOGS outside run another 4 times each alternating.2 logs outside alternate
+    );
   }, [factors]);
-
-  // using Map because we want to track initial action, and Map may be easier to work with for other things
+  console.log(
+    "running right after the useEffect that has const newMood = calculateCatMood(factors)"
+  ); // on initial page load this runs twice in a row before useEffect runs twice in a row and then this runs 4 more times.
+  // using Map  because we want to track initial action, and Map may be easier to work with for other things
   const actionFrequencies = new Map();
 
   actionLog.forEach((action) => {
@@ -110,25 +117,35 @@ export function useCatMood(
     firstAction,
   }: interactionOrderAdjustmentFactors) {
     // Placeholder values for now
+    // might make more sense to just come up with specific functions rather than forcing...
+    // ... the existing contingencies into this exact format
     switch (interaction) {
       case "pet":
-        console.log(
-          "  initialFactors.playful",
-          initialFactors.playful,
-          " firstAction",
-          firstAction
-        );
-        return 0;
+        if (firstAction === "pss pss") {
+          return 0.2;
+        } else if (firstAction === "ignore") {
+          return 0.1;
+        } else {
+          return 0;
+        }
+
       case "feed":
-        return 1;
+        return 0;
       case "play":
-        return 2;
+        return 0;
       case "hold":
-        return 3;
+        if (firstAction === "pet") {
+          return 0.2;
+        } else if (firstAction === "pss pss") {
+          return 0.1;
+        } else {
+          return 0;
+        }
+
       case "ignore":
-        return 4;
+        return 0;
       case "pss pss":
-        return 5;
+        return 0;
     }
   }
 
@@ -153,11 +170,6 @@ export function useCatMood(
 
     const key = `${playfulnessKey}_${lovingKey}_${extrovertKey}_${relationshipLoveKey}_${frequencyKey}`;
 
-    console.log("actionLog", actionLog);
-    console.log("actionFrequencies", actionFrequencies);
-    console.log("firstAction ", firstAction);
-    console.log("key", key);
-
     // below we pass the matching key decision table for the current interaction case
     switch (interaction) {
       case "pet":
@@ -174,8 +186,6 @@ export function useCatMood(
         return pssPssAdjustments[key] || 0;
     }
   }
-
-  // ***** VITAL LOGIC HERE at Heart of mood changes *****
 
   // Below this is where we update the factors based on the user interaction
 
@@ -215,6 +225,14 @@ export function useCatMood(
       firstAction: trueFirstAction,
     });
 
+    const newFinalAdjustmentFactor =
+      interactionOrderAdjustmentFactor + adjustmentFactor;
+
+    setFinalAdjustmentFactor(newFinalAdjustmentFactor);
+    // using finalAdjustmentFactor to determine current catReaction for UI
+    // if the factor is positive, then we render a random positive reaction, if negative we render a random negative reaction
+
+    console.log("finalAdjustmentFactor in onInteract:", finalAdjustmentFactor);
     console.log(
       "interactionOrderAdjustmentFactor in onInteract:",
       interactionOrderAdjustmentFactor
@@ -252,7 +270,7 @@ export function useCatMood(
         setFactors((prev) => ({
           ...prev,
 
-          trustR: Math.max(0, Math.min(10, prev.trustR + adjustmentFactor + 4)),
+          trustR: Math.max(0, Math.min(10, prev.trustR + adjustmentFactor)),
           affectionR: Math.max(
             0,
             Math.min(10, prev.affectionR + adjustmentFactor)
@@ -358,6 +376,6 @@ export function useCatMood(
         break;
     }
   };
-
-  return [mood, { onInteract }];
+  console.log("statement at end of");
+  return [mood, finalAdjustmentFactor, { onInteract }];
 }

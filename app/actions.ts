@@ -77,22 +77,29 @@ export async function UpdateRelationship(
     Math.min(10, initialFactors.loveR + (newTrust + newAffection) / 2)
   );
 
+  console.log(
+    "@@@@@@@Inside UpdateRelationship newLove, newTrust, newAffection that would normally send to DB",
+    newLove,
+    newTrust,
+    newAffection
+  );
+
   // Directly apply the calculated changes to the database
   // !!!!! OOOOOPSSS don't udpate "love" from relationship with "loving" from cat.
-  try {
-    const updatedRelationship = await prisma.relationship.update({
-      where: { id: relationshipId },
-      data: {
-        love: newLove,
-        trust: newTrust,
-        affection: newAffection,
-      },
-    });
+  // try {
+  //   const updatedRelationship = await prisma.relationship.update({
+  //     where: { id: relationshipId },
+  //     data: {
+  //       love: newLove,
+  //       trust: newTrust,
+  //       affection: newAffection,
+  //     },
+  //   });
 
-    console.log("Relationship updated successfully", updatedRelationship);
-    return revalidatePath(`/cat/${catId}`);
-  } catch (error) {
-    console.error("Error updating relationship", error);
-    throw new Error("Failed to update relationship");
-  }
+  //   console.log("Relationship updated successfully", updatedRelationship);
+  //   return revalidatePath(`/cat/${catId}`);
+  // } catch (error) {
+  //   console.error("Error updating relationship", error);
+  //   throw new Error("Failed to update relationship");
+  // }
 }
